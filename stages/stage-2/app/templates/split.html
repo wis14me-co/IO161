@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Split Bill - Pocketful{% endblock %}
+
+{% block content %}
+<div class="page-header" data-testid="split-header">
+    <h2>Split a Bill</h2>
+</div>
+
+<div class="split-form-container" data-testid="split-form-container">
+    <form method="POST" action="/splits" class="split-form" data-testid="split-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        
+        <div class="form-group">
+            <label for="amount" data-testid="split-amount-label">Total Amount</label>
+            <div class="input-with-currency" data-testid="split-amount-input-wrapper">
+                <span class="currency-symbol">{{ currency }}</span>
+                <input type="number" id="amount" name="amount" required min="1" step="1" placeholder="10000" data-testid="split-amount-input">
+            </div>
+            <small class="form-hint">Amount in minor units (e.g., 10000 for €100.00)</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="participant_handles" data-testid="split-participants-label">Participant Handles (comma-separated)</label>
+            <input type="text" id="participant_handles" name="participant_handles" required placeholder="user1, user2, user3" data-testid="split-participants-input">
+            <small class="form-hint">Include yourself if you're part of the split</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="note" data-testid="split-note-label">Note (optional)</label>
+            <textarea id="note" name="note" rows="3" placeholder="What's this for?" data-testid="split-note-input"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block" data-testid="split-submit">Create Split</button>
+    </form>
+</div>
+
+{% if shares %}
+<div class="split-preview" data-testid="split-preview">
+    <h3>Split Preview</h3>
+    <table class="data-table" data-testid="split-preview-table">
+        <thead>
+            <tr>
+                <th>Participant</th>
+                <th>Share</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for share in shares %}
+            <tr data-testid="split-share-row">
+                <td>{{ share.handle }}</td>
+                <td>{{ currency }}{{ (share.amount / (10 ** minor_units)) | format_currency }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="split-total" data-testid="split-total">
+        Total: {{ currency }}{{ (amount / (10 ** minor_units)) | format_currency }}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

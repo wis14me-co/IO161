@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Authorizations - Pocketful{% endblock %}
+
+{% block content %}
+<div class="page-header" data-testid="authorizations-header">
+    <h2>Authorizations</h2>
+    <a href="/authorizations/new" class="btn btn-primary" data-testid="new-auth-btn">New Authorization</a>
+</div>
+
+{% if authorizations %}
+<div class="authorizations-list" data-testid="authorizations-list">
+    <table class="data-table" data-testid="authorizations-table">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Captured</th>
+                <th>Remaining</th>
+                <th>Status</th>
+                <th>Expires</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for auth in authorizations %}
+            <tr data-testid="auth-row" data-auth-id="{{ auth.authorization_id }}">
+                <td data-testid="auth-from">{{ auth.from_handle }}</td>
+                <td data-testid="auth-to">{{ auth.to_handle }}</td>
+                <td data-testid="auth-amount">{{ currency }}{{ (auth.amount / (10 ** minor_units)) | format_currency }}</td>
+                <td data-testid="auth-captured">{{ currency }}{{ (auth.captured_amount / (10 ** minor_units)) | format_currency }}</td>
+                <td data-testid="auth-remaining">{{ currency }}{{ (auth.remaining_amount / (10 ** minor_units)) | format_currency }}</td>
+                <td>
+                    <span class="status-badge status-{{ auth.status }}" data-testid="auth-status">{{ auth.status }}</span>
+                </td>
+                <td data-testid="auth-expires">
+                    {% if auth.expires_at %}{{ auth.expires_at }}{% else %}No expiry{% endif %}
+                </td>
+                <td>
+                    {% if auth.status == "open" and auth.to_user_id == user.id %}
+                    <form method="POST" action="/authorizations/{{ auth.authorization_id }}/capture" class="inline-form" data-testid="capture-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="amount" value="{{ auth.remaining_amount }}">
+                        <input type="hidden" name="final" value="true">
+                        <button type="submit" class="btn btn-sm btn-primary" data-testid="capture-btn">Capture</button>
+                    </form>
+                    {% elif auth.status == "open" and auth.from_user_id == user.id %}
+                    <form method="POST" action="/authorizations/{{ auth.authorization_id }}/void" class="inline-form" data-testid="void-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-sm btn-danger" data-testid="void-btn">Void</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state" data-testid="authorizations-empty">
+    <p>No authorizations found.</p>
+    <a href="/authorizations/new" class="btn btn-primary" data-testid="empty-new-auth">Create your first authorization</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}New Authorization - Pocketful{% endblock %}
+
+{% block content %}
+<div class="page-header" data-testid="new-auth-header">
+    <h2>New Authorization</h2>
+    <a href="/authorizations" class="btn btn-secondary" data-testid="back-to-auths">Back to Authorizations</a>
+</div>
+
+<div class="auth-container" data-testid="new-auth-container">
+    <div class="auth-card">
+        <form method="POST" action="/authorizations" class="auth-form" data-testid="new-auth-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            
+            <div class="form-group">
+                <label for="to_handle" data-testid="new-auth-to-label">Recipient Handle</label>
+                <input type="text" id="to_handle" name="to_handle" required placeholder="username" autocomplete="username" data-testid="new-auth-to-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="amount" data-testid="new-auth-amount-label">Amount</label>
+                <div class="input-with-currency" data-testid="new-auth-amount-input-wrapper">
+                    <span class="currency-symbol">{{ currency }}</span>
+                    <input type="number" id="amount" name="amount" required min="1" step="1" placeholder="10000" data-testid="new-auth-amount-input">
+                </div>
+                <small class="form-hint">Amount in minor units (e.g., 10000 for €100.00)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="note" data-testid="new-auth-note-label">Note (optional)</label>
+                <textarea id="note" name="note" rows="3" placeholder="What's this for?" data-testid="new-auth-note-input"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="visibility" data-testid="new-auth-visibility-label">Visibility</label>
+                <select id="visibility" name="visibility" data-testid="new-auth-visibility-input">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="expires_at" data-testid="new-auth-expires-label">Expires At (optional)</label>
+                <input type="datetime-local" id="expires_at" name="expires_at" data-testid="new-auth-expires-input">
+                <small class="form-hint">Leave empty for no expiry. Format: YYYY-MM-DDTHH:MM</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block" data-testid="new-auth-submit">Create Authorization</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Pocketful - Home{% endblock %}
+
+{% block content %}
+<div class="hero" data-testid="hero">
+    <h2>Welcome to Pocketful</h2>
+    <p class="tagline">Simple, secure money transfers between friends</p>
+    {% if not user %}
+    <div class="hero-actions">
+        <a href="/signup" class="btn btn-primary btn-lg" data-testid="hero-signup">Get Started</a>
+        <a href="/login" class="btn btn-secondary btn-lg" data-testid="hero-login">Login</a>
+    </div>
+    {% else %}
+    <div class="hero-actions">
+        <a href="/requests" class="btn btn-primary btn-lg" data-testid="hero-new-request">New Request</a>
+        <a href="/authorizations" class="btn btn-secondary btn-lg" data-testid="hero-new-auth">New Authorization</a>
+        <a href="/split" class="btn btn-secondary btn-lg" data-testid="hero-new-split">New Split</a>
+    </div>
+    {% endif %}
+</div>
+
+{% if user %}
+<div class="dashboard" data-testid="dashboard">
+    <section class="balance-card" data-testid="balance-card">
+    <h3>Your Balance</h3>
+    <div class="balance-amount" data-testid="balance-amount">
+        {{ currency }}{{ (balance / (10 ** minor_units)) | format_currency }}
+    </div>
+    <div class="balance-details" data-testid="balance-details">
+        <span data-testid="available-balance">Available: {{ currency }}{{ (available / (10 ** minor_units)) | format_currency }}</span>
+        <span data-testid="held-balance">Held: {{ currency }}{{ (held / (10 ** minor_units)) | format_currency }}</span>
+    </section>
+    
+    <section class="wallet-refresh" data-testid="wallet-refresh">
+        <button class="btn btn-sm btn-secondary" data-testid="wallet-refresh-btn">
+            <span>Refresh Wallet</span>
+            <span class="sr-only">Refresh wallet balance and transactions</span>
+        </button>
+    </section>
+    
+    <section class="quick-actions" data-testid="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-grid">
+            <a href="/requests" class="action-card" data-testid="action-requests">
+                <span class="action-icon">💸</span>
+                <span>Requests</span>
+            </a>
+            <a href="/authorizations" class="action-card" data-testid="action-authorizations">
+                <span class="action-icon">🔐</span>
+                <span>Authorizations</span>
+            </a>
+            <a href="/split" class="action-card" data-testid="action-split">
+                <span class="action-icon">✂️</span>
+                <span>Split</span>
+            </a>
+            <a href="/activity" class="action-card" data-testid="action-activity">
+                <span class="action-icon">📋</span>
+                <span>Activity</span>
+            </a>
+        </div>
+    </section>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Pocketful - Authorizations{% endblock %}
+
+{% block content %}
+<h1>Pocketful - Authorizations</h1>
+
+<div class="container">
+    <div class="card">
+        <h3>Authorization List</h3>
+        <div id="authorization-list" style="max-height: 500px; overflow-y: auto;" aria-label="Authorization list">
+            <!-- Authorization items inserted by JavaScript -->
+        </div>
+        <div class="empty-authorizations" style="display: text-center; color: var(--text-secondary); padding: var(--space-lg);" role="status" aria-live="polite">
+            No authorizations
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<!-- Authorization-specific styles can be added here -->
+{% endblock %}

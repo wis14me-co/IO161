@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Requests - Pocketful{% endblock %}
+
+{% block content %}
+<div class="page-header" data-testid="requests-header">
+    <h2>Requests</h2>
+    <a href="/requests/new" class="btn btn-primary" data-testid="new-request-btn">New Request</a>
+</div>
+
+{% if requests %}
+<div class="requests-list" data-testid="requests-list">
+    <table class="data-table" data-testid="requests-table">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr data-testid="request-row" data-request-id="{{ req.request_id }}">
+                <td data-testid="request-requester">{{ req.requester_handle }}</td>
+                <td data-testid="request-payer">{{ req.payer_handle }}</td>
+                <td data-testid="request-amount">{{ currency }}{{ (req.amount / (10 ** minor_units)) | format_currency }}</td>
+                <td>
+                    <span class="status-badge status-{{ req.status }}" data-testid="request-status">{{ req.status }}</span>
+                </td>
+                <td>
+                    {% if req.status == "pending" and req.payer_id == user.id %}
+                    <form method="POST" action="/requests/{{ req.request_id }}/pay" class="inline-form" data-testid="pay-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="visibility" value="public">
+                        <button type="submit" class="btn btn-sm btn-primary" data-testid="pay-btn">Pay</button>
+                    </form>
+                    <form method="POST" action="/requests/{{ req.request_id }}/decline" class="inline-form" data-testid="decline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-sm btn-secondary" data-testid="decline-btn">Decline</button>
+                    </form>
+                    {% elif req.status == "pending" and req.requester_id == user.id %}
+                    <form method="POST" action="/requests/{{ req.request_id }}/cancel" class="inline-form" data-testid="cancel-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-sm btn-secondary" data-testid="cancel-btn">Cancel</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state" data-testid="requests-empty">
+    <p>No requests found.</p>
+    <a href="/requests/new" class="btn btn-primary" data-testid="empty-new-request">Create your first request</a>
+</div>
+{% endif %}
+{% endblock %}

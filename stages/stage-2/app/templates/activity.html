@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Activity - Pocketful{% endblock %}
+
+{% block content %}
+<div class="page-header" data-testid="activity-header">
+    <h2>Activity Feed</h2>
+</div>
+
+{% if payments %}
+<div class="activity-list" data-testid="activity-list">
+    <table class="data-table" data-testid="activity-table">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Note</th>
+                <th>Visibility</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr data-testid="activity-row">
+                <td data-testid="activity-from">{{ payment.from_handle }}</td>
+                <td data-testid="activity-to">{{ payment.to_handle }}</td>
+                <td data-testid="activity-amount">{{ payment.currency }}{{ (payment.amount / (10 ** payment.minor_units)) | format_currency }}</td>
+                <td data-testid="activity-note">{{ payment.note }}</td>
+                <td>
+                    <span class="visibility-badge visibility-{{ payment.visibility }}" data-testid="activity-visibility">{{ payment.visibility }}</span>
+                </td>
+                <td data-testid="activity-date">{{ payment.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state" data-testid="activity-empty">
+    <p>No activity yet.</p>
+</div>
+{% endif %}
+{% endblock %}

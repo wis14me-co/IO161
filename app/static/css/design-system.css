@@ -1,0 +1,277 @@
+/* ==========================================================================
+   Pocketful Design System
+   Memory-efficient, modular CSS with custom properties
+   ========================================================================== */
+
+/* Color Palette - Trustworthy finance blues/greens */
+:root {
+    /* Primary colors */
+    --primary: #2c3e50;
+    --primary-dark: #1a252f;
+    --primary-light: #3a4f66;
+    --primary-lighter: #f0f2f5;
+
+    /* Positive/Success colors */
+    --positive: #27ae60;
+    --positive-light: #d5f5e3;
+
+    /* Negative/Warning colors */
+    --negative: #c0392b;
+    --negative-light: #fadbd8;
+    --warning: #f39c12;
+    --warning-light: #fdf2e9;
+
+    /* Neutral colors */
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --gray: #6c757d;
+    --dark-gray: #495057;
+    --text-gray: #343a40;
+    --text-light: #6c757d;
+    --text-lighter: #868e94;
+    --black: #212529;
+
+    /* Background */
+    --background: #fafafa;
+    --card-bg: #ffffff;
+    --sidebar-bg: #ffffff;
+}
+
+/* Typography Scale */
+html {
+    font-size: 16px; /* 16px base = 1rem */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-gray);
+    background-color: var(--background);
+    margin: 0;
+    padding: 0;
+}
+
+/* Typography Scale Variables */
+--font-size-xs: 0.75rem;     /* 12px */
+--font-size-sm: 0.875rem;    /* 14px */
+--font-size-base: 1rem;      /* 16px */
+--font-size-lg: 1.25rem;     /* 20px */
+--font-size-xl: 1.5rem;      /* 24px */
+--font-size-2xl: 2rem;       /* 32px */
+--font-size-3xl: 3rem;       /* 48px */
+
+--font-weight-normal: 400;
+--font-weight-medium: 500;
+--font-weight-bold: 700;
+
+/* Spacing Scale */
+--space-xs: 0.25rem;   /* 4px */
+--space-sm: 0.5rem;    /* 8px */
+--space-md: 1rem;      /* 16px */
+--space-lg: 1.5rem;    /* 24px */
+--space-xl: 2rem;      /* 32px */
+--space-2xl: 3rem;     /* 48px */
+
+/* ==========================================================================
+   Component Library
+   ========================================================================== */
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Primary button */
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Secondary button */
+.btn-secondary {
+    background-color: var(--medium-gray);
+    color: var(--text-gray);
+}
+
+.btn-secondary:hover {
+    background-color: #dee2e6;
+}
+
+/* Success button */
+.btn-success {
+    background-color: var(--positive);
+    color: var(--white);
+}
+
+.btn-success:hover {
+    background-color: #219150;
+}
+
+/* Danger button */
+.btn-danger {
+    background-color: var(--negative);
+    color: var(--white);
+}
+
+.btn-danger:hover {
+    background-color: #a71d2a;
+}
+
+/* Input elements */
+.input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    background-color: var(--white);
+    color: var(--text-gray);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+
+.input:disabled {
+    background-color: var(--medium-gray);
+    color: var(--text-lighter);
+    cursor: not-allowed;
+}
+
+/* Select element */
+.select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%236c757d' d='M7.25 5.74l-5 4.97L2 6.99l5.25 4.74L12.75 9.05l-5.57 1.06L16 7.71l-4.75-4.74L7.25 5.75z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+}
+
+.select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+
+/* Form groups */
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-xxs);
+    color: var(--text-gray);
+}
+
+.form-text {
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-xxs);
+}
+
+.form-text .negative {
+    color: var(--negative);
+}
+
+.form-text .positive {
+    color: var(--positive);
+}
+
+.form-text .warning {
+    color: var(--warning);
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty states */
+.empty-activity,
+.empty-requests,
+.empty-authorizations,
+.empty-splits {
+    padding: var(--space-lg);
+    color: var(--text-lighter);
+    text-align: center;
+}
+
+.empty-activity.hidden,
+.empty-requests.hidden,
+.empty-authorizations.hidden,
+.empty-splits.hidden {
+    display: none;
+}
+
+/* Layout utilities */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col {
+    flex: 1 1 300px;
+    min-width: 300px;
+}
+
+@media (max-width: 768px) {
+    .col {
+        min-width: 100%;
+    }
+}
+
+/* Focus visible states */
+* {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Reduced motion variables */
+--transition-fast: 150ms ease;
+--transition-normal: 250ms ease;

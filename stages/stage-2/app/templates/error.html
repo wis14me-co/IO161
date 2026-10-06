@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Pocketful{% endblock %}
+
+{% block content %}
+<div class="auth-container" data-testid="error-container">
+    <div class="auth-card">
+        <h2 data-testid="error-title">Error</h2>
+        
+        <div class="alert alert-error" data-testid="error-message">
+            {{ error }}
+        </div>
+        
+        <div class="error-actions" data-testid="error-actions">
+            <a href="/" class="btn btn-primary" data-testid="error-home">Home</a>
+            {% if user %}
+            <a href="/activity" class="btn btn-secondary" data-testid="error-activity">Activity</a>
+            {% else %}
+            <a href="/login" class="btn btn-secondary" data-testid="error-login">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

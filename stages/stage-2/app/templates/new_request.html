@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}New Request - Pocketful{% endblock %}
+
+{% block content %}
+<div class="page-header" data-testid="new-request-header">
+    <h2>New Request</h2>
+    <a href="/requests" class="btn btn-secondary" data-testid="back-to-requests">Back to Requests</a>
+</div>
+
+<div class="auth-container" data-testid="new-request-container">
+    <div class="auth-card">
+        <form method="POST" action="/requests" class="auth-form" data-testid="new-request-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            
+            <div class="form-group">
+                <label for="payer_handle" data-testid="new-request-payer-label">Payer Handle</label>
+                <input type="text" id="payer_handle" name="payer_handle" required placeholder="username" autocomplete="username" data-testid="new-request-payer-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="amount" data-testid="new-request-amount-label">Amount</label>
+                <div class="input-with-currency" data-testid="new-request-amount-input-wrapper">
+                    <span class="currency-symbol">{{ currency }}</span>
+                    <input type="number" id="amount" name="amount" required min="1" step="1" placeholder="10000" data-testid="new-request-amount-input">
+                </div>
+                <small class="form-hint">Amount in minor units (e.g., 10000 for €100.00)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="note" data-testid="new-request-note-label">Note (optional)</label>
+                <textarea id="note" name="note" rows="3" placeholder="What's this for?" data-testid="new-request-note-input"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="visibility" data-testid="new-request-visibility-label">Visibility</label>
+                <select id="visibility" name="visibility" data-testid="new-request-visibility-input">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block" data-testid="new-request-submit">Create Request</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

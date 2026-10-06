@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Pocketful - Signup{% endblock %}
+
+{% block content %}
+<h1>Pocketful - Signup</h1>
+
+<div class="card">
+    <h3>Create Account</h3>
+    
+    <div class="form-group">
+        <label class="form-label" for="signup-email">Email</label>
+        <input type="email" id="signup-email" class="input" required data-testid="signup-email" aria-describedby="email-help">
+    </div>
+    <div id="email-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter your email address</div>
+    
+    <div class="form-group">
+        <label class="form-label" for="signup-password">Password</label>
+        <input type="password" id="signup-password" class="input" required minlength="8" data-testid="signup-password" aria-describedby="password-help">
+    </div>
+    <div id="password-help" class="form-text" style="display: none; color: var(--text-secondary);">Create a password (minimum 8 characters)</div>
+    
+    <div class="form-group">
+        <label class="form-label" for="signup-display-name">Display Name</label>
+        <input type="text" id="signup-display-name" class="input" required data-testid="signup-display-name" aria-describedby="display-name-help">
+    </div>
+    <div id="display-name-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter your display name (maximum 100 characters)</div>
+    
+    <button id="signup-submit" class="btn" data-testid="signup-submit">Create Account</button>
+    <div id="auth-error" class="form-text" style="display: none; color: var(--negative);" data-testid="auth-error" role="alert" aria-live="polite"></div>
+</div>
+
+<div class="card" style="margin-top: var(--space-lg);">
+    <h3>Signed In As</h3>
+    <div id="current-user" style="display: none;" data-testid="current-user" role="status" aria-live="polite"></div>
+    <span id="current-handle" data-testid="current-handle">Not signed in</span>
+    <button id="logout-button" style="display: none;" class="btn" data-testid="logout-button">Logout</button>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{
+  "kind": "layered",
+  "title": "Pocketful Payment System",
+  "layers": [
+    { "id": "ui", "title": "Browser", "items": [
+      { "id": "api_client", "label": "API Client" }
+    ] },
+    { "id": "api", "title": "API", "items": [
+      { "id": "fastapi", "label": "FastAPI App" }
+    ] },
+    { "id": "service", "title": "Service Layer", "items": [
+      { "id": "auth", "label": "Auth Service" },
+      { "id": "payment", "label": "Payment Service" },
+      { "id": "split", "label": "Split Service" },
+      { "id": "settlement", "label": "Settlement Service" },
+      { "id": "authorization", "label": "Authorization Service" }
+    ] },
+    { "id": "data", "title": "Data Store", "items": [
+      { "id": "users", "label": "Users Table" },
+      { "id": "payments", "label": "Payments Table" },
+      { "id": "requests", "label": "Requests Table" },
+      { "id": "splits", "label": "Splits Table" },
+      { "id": "authorizations", "label": "Authorizations Table" }
+    ] }
+  ],
+  "flows": [
+    { "from": "api_client", "to": "fastapi", "label": "HTTPS / JSON" },
+    { "from": "fastapi", "to": "auth", "label": "Auth Endpoints" },
+    { "from": "fastapi", "to": "payment", "label": "Payment Endpoints" },
+    { "from": "fastapi", "to": "split", "label": "Split Endpoints" },
+    { "from": "fastapi", "to": "settlement", "label": "Settlement Endpoints" },
+    { "from": "fastapi", "to": "authorization", "label": "Auth Endpoints" },
+    { "from": "auth", "to": "users", "label": "User Lookup" },
+    { "from": "payment", "to": "users", "label": "User Balance Lookup" },
+    { "from": "payment", "to": "payments", "label": "Create/Read Payments" },
+    { "from": "split", "to": "users", "label": "User Handle Lookup" },
+    { "from": "split", "to": "requests", "label": "Create Requests" },
+    { "from": "settlement", "to": "users", "label": "Operator Check" },
+    { "from": "settlement", "to": "payments", "label": "Create Settlement Payments" },
+    { "from": "authorization", "to": "users", "label": "User Lookup" },
+    { "from": "authorization", "to": "payments", "label": "Create Payments on Capture" },
+    { "from": "authorization", "to": "split", "label": "Authorization Affects Split Calculation" },
+    { "from": "payment", "to": "authorization", "label": "Payment Linked to Authorization Capture" }
+  ]
+}
