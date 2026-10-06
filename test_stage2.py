@@ -24,7 +24,7 @@ fixture = {
     ]
 }
 resp = client.post('/_test/reset', json=fixture)
-assert resp.status_code == 200, f'Reset failed: {resp.status_code}'
+assert resp.status_code == 204, f'Reset failed: {resp.status_code}'
 print('   PASS')
 
 # 2. Login
@@ -69,7 +69,7 @@ print('   PASS')
 
 # 7. Test requests API
 print('7. Testing requests API...')
-resp = client.post('/api/v1/requests', headers={**headers, 'Idempotency-Key': str(uuid.uuid4())}, json={'to_handle': 'bob', 'amount': 2000, 'note': 'rent'})
+resp = client.post('/api/v1/requests', headers={**headers, 'Idempotency-Key': str(uuid.uuid4())}, json={'payer_handle': 'bob', 'amount': 2000, 'note': 'rent'})
 assert resp.status_code == 201, f'Request failed: {resp.status_code}'
 print('   PASS')
 

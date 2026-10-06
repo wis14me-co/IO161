@@ -84,6 +84,7 @@ async def login_page(request: Request, response: Response):
 @router.get("/requests", response_class=HTMLResponse, name="requests")
 async def requests_page(request: Request, response: Response, user_id: str = Depends(get_current_user_optional)):
     """Serve the requests page or JSON for API clients."""
+    print(f"DEBUG: requests_page hit, path={request.url.path}")
     if wants_html(request):
         if not user_id:
             return RedirectResponse(url="/login")
@@ -137,6 +138,7 @@ async def split_page(request: Request, response: Response, user_id: str = Depend
 @router.get("/authorizations", response_class=HTMLResponse, name="authorizations")
 async def authorizations_page(request: Request, response: Response, user_id: str = Depends(get_current_user_optional)):
     """Serve the authorizations page."""
+    print(f"DEBUG: authorizations_page hit, path={request.url.path}")
     if wants_html(request):
         if not user_id:
             return RedirectResponse(url="/login")

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from app.payments.schemas import PaymentCreate, PaymentResponse
 from app.payments.service import payment_service
 from app.deps import get_current_user
 from app.validation import create_error_response
 from app.storage import storage
+from typing import List
 
 
 router = APIRouter(tags=["payments"])
@@ -24,6 +25,7 @@ async def create_payment(
             status_code, response_body = idempotent_result
             if status_code == 409:
                 raise HTTPException(status_code=409, detail=response_body)
+            # Replay: return 200 with original response body
             return PaymentResponse(**response_body)
         
         payment_obj = payment_service.create_payment(
@@ -90,6 +92,39 @@ async def list_payments(
                 created_at=p.created_at
             ))
         return result
+    except Exception as e:
+        if hasattr(e, 'status_code'):
+            raise HTTPException(status_code=e.status_code, detail=create_error_response(e.code, e.message))
+        raise
+
+
+@router.get("/activity")
+async def get_activity(
+    user_id: str = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0)
+):
+    """Get activity feed - payments visible to the caller."""
+    try:
+        payments = storage.get_activity_feed(user_id, limit, offset)
+        result = []
+        for p in payments:
+            from_user = storage.get_user_by_id(p.from_user_id)
+            to_user = storage.get_user_by_id(p.to_user_id)
+            result.append(PaymentResponse(
+                payment_id=p.id,
+                from_user_id=p.from_user_id,
+                from_handle=from_user.handle if from_user else "",
+                to_user_id=p.to_user_id,
+                to_handle=to_user.handle if to_user else "",
+                amount=p.amount,
+                currency=storage.currency,
+                note=p.note,
+                visibility=p.visibility,
+                request_id=p.request_id,
+                created_at=p.created_at
+            ))
+        return {"payments": result, "has_more": len(result) == limit}
     except Exception as e:
         if hasattr(e, 'status_code'):
             raise HTTPException(status_code=e.status_code, detail=create_error_response(e.code, e.message))

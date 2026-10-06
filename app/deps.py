@@ -149,6 +149,10 @@ def wants_html(request: Request) -> bool:
     Only return True if text/html is explicitly in Accept header.
     """
     accept = request.headers.get("accept", "")
+    # DEBUG
+    print(f"DEBUG wants_html: path={request.url.path}, accept={accept}")
     # Only treat as HTML request if explicitly requesting text/html
     # Default to JSON for API clients
-    return "text/html" in accept and "application/json" not in accept
+    result = "text/html" in accept and "application/json" not in accept
+    print(f"DEBUG wants_html: result={result}")
+    return result

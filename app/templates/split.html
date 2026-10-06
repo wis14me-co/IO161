@@ -14,6 +14,7 @@
         placeholder="30.00"
         inputmode="decimal"
         aria-describedby="split-amount-help"
+        data-testid="split-amount"
       />
       <div
         id="split-amount-help"
@@ -32,6 +33,7 @@
         class="input"
         placeholder="ada,bob,cy (comma-separated)"
         aria-describedby="split-handles-help"
+        data-testid="split-handles"
       />
       <div
         id="split-handles-help"
@@ -50,6 +52,7 @@
         class="input"
         placeholder="dinner"
         aria-describedby="split-note-help"
+        data-testid="split-note"
       />
       <div
         id="split-note-help"
@@ -60,24 +63,21 @@
       </div>
     </div>
 
-    <button id="split-submit" class="btn" aria-label="Create split">Create Split</button>
+    <button id="split-submit" class="btn" aria-label="Create split" data-testid="split-submit">Create Split</button>
     <div
       id="split-error"
       class="form-text"
       style="display: none; color: var(--negative)"
       role="alert"
       aria-live="polite"
+      data-testid="split-error"
     ></div>
   </div>
 
   <div class="card" style="margin-top: var(--space-lg)">
     <h3>Share Preview</h3>
-    <div id="split-preview" style="display: none">
-      <div class="split-share" id="share-ada">Ada: --</div>
-      <div class="split-share" id="share-bob">Bob: --</div>
-      <div class="split-share" id="share-cy">Cy: --</div>
-    </div>
-    <div class="empty-splits" style="display: none; color: var(--text-secondary)">
+    <div id="split-preview" style="display: none" data-testid="split-preview"></div>
+    <div class="empty-splits" style="display: none; color: var(--text-secondary)" data-testid="empty-splits">
       No shares to display
     </div>
   </div>

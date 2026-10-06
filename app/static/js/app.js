@@ -260,12 +260,12 @@ const pages = {
               const visibilityIcon = p.visibility === 'public' ? '🌐' : '🔒';
 
               return `
-                            <div class="activity-item" id="activity-item-${p.payment_id}" data-visibility="${p.visibility}" role="listitem" aria-label="${isOutgoing ? 'Outgoing payment to ' + p.to_handle : 'Incoming payment from ' + p.from_handle}${p.note ? ': ' + p.note : ''}">
-                                <div class="activity-parties">
+                            <div class="activity-item" id="activity-item-${p.payment_id}" data-testid="activity-item-${p.payment_id}" data-visibility="${p.visibility}" role="listitem" aria-label="${isOutgoing ? 'Outgoing payment to ' + p.to_handle : 'Incoming payment from ' + p.from_handle}${p.note ? ': ' + p.note : ''}">
+                                <div class="activity-parties" data-testid="activity-parties-${p.payment_id}">
                                     <strong>${p.from_handle}</strong> ${isOutgoing ? '→' : '←'} <strong>${p.to_handle}</strong>
                                 </div>
-                                <div class="activity-amount" ${amountClass}>${sign}${formatMinorUnits(p.amount)}</div>
-                                <div class="activity-note">${p.note || ''} ${visibilityIcon}</div>
+                                <div class="activity-amount" ${amountClass} data-testid="activity-amount-${p.payment_id}">${sign}${formatMinorUnits(p.amount)}</div>
+                                <div class="activity-note" data-testid="activity-note-${p.payment_id}">${p.note || ''} ${visibilityIcon}</div>
                             </div>
                         `;
             }
@@ -295,12 +295,12 @@ const pages = {
               }
 
               return `
-                            <div class="activity-item" id="activity-item-${auth.id}" data-visibility="${auth.visibility}" data-status="${auth.status}" role="listitem" aria-label="${isIncoming ? 'Incoming authorization from ' + otherParty : 'Outgoing authorization to ' + otherParty} ${auth.status}${auth.note ? ': ' + auth.note : ''}">
-                                <div class="activity-parties">
+                            <div class="activity-item" id="activity-item-${auth.id}" data-testid="activity-item-${auth.id}" data-visibility="${auth.visibility}" data-status="${auth.status}" role="listitem" aria-label="${isIncoming ? 'Incoming authorization from ' + otherParty : 'Outgoing authorization to ' + otherParty} ${auth.status}${auth.note ? ': ' + auth.note : ''}">
+                                <div class="activity-parties" data-testid="activity-parties-${auth.id}">
                                     <strong>${otherParty}</strong> ${isIncoming ? '→' : '←'} <strong>${isIncoming ? auth.to_handle : auth.from_handle}</strong>
                                 </div>
-                                <div class="activity-amount" ${amountClass}>${sign}${formatMinorUnits(auth.amount)}</div>
-                                <div class="activity-note">${auth.note || ''}</div>
+                                <div class="activity-amount" ${amountClass} data-testid="activity-amount-${auth.id}">${sign}${formatMinorUnits(auth.amount)}</div>
+                                <div class="activity-note" data-testid="activity-note-${auth.id}">${auth.note || ''}</div>
                                 <div class="activity-details tiny">${auth.status}: ${auth.captured_amount}/${auth.amount} captured</div>
                             </div>
                         `;
@@ -607,12 +607,12 @@ const pages = {
           if (r.status === 'pending') {
             if (isIncoming) {
               actions = `
-                            <button class="btn btn-success" data-action="pay" data-request-id="${r.request_id}">Pay</button>
-                            <button class="btn btn-danger" data-action="decline" data-request-id="${r.request_id}">Decline</button>
+                            <button class="btn btn-success" id="request-pay-${r.request_id}" data-action="pay" data-request-id="${r.request_id}" data-testid="request-pay-${r.request_id}">Pay</button>
+                            <button class="btn btn-danger" id="request-decline-${r.request_id}" data-action="decline" data-request-id="${r.request_id}" data-testid="request-decline-${r.request_id}">Decline</button>
                         `;
             } else {
               actions = `
-                            <button class="btn btn-secondary" data-action="cancel" data-request-id="${r.request_id}">Cancel</button>
+                            <button class="btn btn-secondary" id="request-cancel-${r.request_id}" data-action="cancel" data-request-id="${r.request_id}" data-testid="request-cancel-${r.request_id}">Cancel</button>
                         `;
             }
           } else if (r.status === 'paid') {
@@ -624,12 +624,12 @@ const pages = {
           }
 
           return `
-                    <div class="request-item" id="request-item-${r.request_id}" data-status="${r.status}">
-                        <div class="request-amount" ${amountClass}>${sign}${formatMinorUnits(r.amount)}</div>
+                    <div class="request-item" id="request-item-${r.request_id}" data-testid="request-item-${r.request_id}" data-status="${r.status}">
+                        <div class="request-amount" ${amountClass} data-testid="request-amount-${r.request_id}">${sign}${formatMinorUnits(r.amount)}</div>
                         <div>From: ${r.requester_handle} → To: ${r.payer_handle}</div>
                         <div>${r.note || ''}</div>
                         <div>${actions}</div>
-                        <div id="request-error-${r.request_id}" class="form-text" style="display: none; color: var(--negative);"></div>
+                        <div id="request-error-${r.request_id}" class="form-text" style="display: none; color: var(--negative);" data-testid="request-error-${r.request_id}" role="alert" aria-live="polite"></div>
                     </div>
                 `;
         })
@@ -734,12 +734,12 @@ const pages = {
         if (preview) preview.style.display = 'block';
         if (empty) empty.style.display = 'none';
 
-        handles.forEach((handle, i) => {
-          const el = document.getElementById(`share-${handle}`);
-          if (el) {
-            el.textContent = `${handle}: ${formatMinorUnits(shares[i])}`;
-          }
-        });
+        // Render shares dynamically with data-testid attributes
+        preview.innerHTML = handles
+          .map((handle, i) => `
+            <div class="split-share" id="split-share-${handle}" data-testid="split-share-${handle}">${handle}: ${formatMinorUnits(shares[i])}</div>
+          `)
+          .join('');
       } catch (e) {
         if (preview) preview.style.display = 'none';
         if (empty) empty.style.display = 'block';
@@ -793,6 +793,46 @@ const pages = {
       this.bindEvents();
     },
 
+    async handleAuthorize() {
+      const handle = document.getElementById('authorize-handle').value.trim();
+      const amountStr = document.getElementById('authorize-amount').value.trim();
+      const note = document.getElementById('authorize-note').value.trim();
+      const visibility = document.getElementById('authorize-visibility').value;
+
+      if (!handle || !amountStr) {
+        showError('authorize-error', 'Handle and amount are required');
+        return;
+      }
+
+      hideError('authorize-error');
+      setLoading('authorize-submit', true);
+
+      try {
+        const amount = parseAmount(amountStr);
+        await api.createAuthorization(handle, amount, note, visibility);
+        // Clear form
+        document.getElementById('authorize-amount').value = '';
+        document.getElementById('authorize-note').value = '';
+        await this.loadAuthorizations();
+      } catch (e) {
+        showError('authorize-error', e.message);
+      } finally {
+        setLoading('authorize-submit', false);
+      }
+    },
+
+    bindEvents() {
+      // Authorize form submission
+      const authorizeForm = document.getElementById('authorize-form');
+      if (authorizeForm) {
+        authorizeForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          await this.handleAuthorize();
+        });
+      }
+      // Action buttons are bound in loadAuthorizations
+    },
+
     async loadAuthorizations() {
       try {
         const data = await api.listAuthorizations(null, null, 50, 0);
@@ -819,16 +859,19 @@ const pages = {
             const remainingAmount = auth.amount - auth.captured_amount;
 
             let actions = '';
+            let captureAmountInput = '';
             if (auth.status === 'open') {
               if (isIncoming) {
                 // Receiver can capture
+                captureAmountInput = `
+                                    <input type="text" id="authorization-capture-amount-${auth.id}" class="input" value="${(remainingAmount / 100).toFixed(2)}" inputmode="decimal" data-testid="authorization-capture-amount-${auth.id}" aria-label="Capture amount" />`;
                 actions = `
-                                <button class="btn btn-success" data-action="capture" data-auth-id="${auth.id}" data-amount="${auth.amount}" data-remaining="${remainingAmount}" data-idempotency-key="${this.generateIdempotencyKey()}">Capture ${formatMinorUnits(remainingAmount)}</button>
+                                <button class="btn btn-success" id="authorization-capture-${auth.id}" data-action="capture" data-auth-id="${auth.id}" data-amount="${auth.amount}" data-remaining="${remainingAmount}" data-idempotency-key="${this.generateIdempotencyKey()}" data-testid="authorization-capture-${auth.id}">Capture ${formatMinorUnits(remainingAmount)}</button>
                             `;
               } else {
                 // Payer can void
                 actions = `
-                                <button class="btn btn-danger" data-action="void" data-auth-id="${auth.id}" data-idempotency-key="${this.generateIdempotencyKey()}">Void</button>
+                                <button class="btn btn-danger" id="authorization-void-${auth.id}" data-action="void" data-auth-id="${auth.id}" data-idempotency-key="${this.generateIdempotencyKey()}" data-testid="authorization-void-${auth.id}">Void</button>
                             `;
               }
             } else if (auth.status === 'captured') {
@@ -849,14 +892,14 @@ const pages = {
                                 </div>
                                 <div class="authorization-status ${statusClass}">${auth.status.toUpperCase()}</div>
                             </div>
-                            <div class="authorization-amount" ${amountClass}>${sign}${formatMinorUnits(auth.amount)}</div>
+                            <div class="authorization-amount" ${amountClass} data-testid="authorization-amount-${auth.id}">${sign}${formatMinorUnits(auth.amount)}</div>
                             <div class="authorization-details">
-                                <div>Captured: ${formatMinorUnits(auth.captured_amount)}</div>
-                                <div>Remaining: ${formatMinorUnits(remainingAmount)}</div>
+                                ${auth.status === 'captured' ? `<div data-testid="authorization-captured-${auth.id}">Captured: ${formatMinorUnits(auth.captured_amount)}</div>` : ''}
+                                ${auth.expires_at ? `<div data-testid="authorization-expires-${auth.id}">${new Date(auth.expires_at).toISOString()}</div>` : ''}
                                 ${auth.note ? `<div>Note: ${auth.note}</div>` : ''}
-                                ${auth.expires_at ? `<div>Expires: ${new Date(auth.expires_at).toLocaleString()}</div>` : ''}
                             </div>
                             <div class="authorization-actions">
+                                ${captureAmountInput}
                                 ${actions}
                             </div>
                             <div id="authorization-error-${auth.id}" class="form-text" style="display: none; color: var(--negative);" data-testid="authorization-error-${auth.id}" role="alert" aria-live="polite"></div>

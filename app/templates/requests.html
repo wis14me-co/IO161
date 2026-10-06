@@ -6,13 +6,14 @@
     <div class="col">
       <div class="card">
         <h3>Incoming Requests</h3>
-        <div class="empty-requests" id="incoming-list-empty" role="status" aria-live="polite">
+        <div class="empty-requests" id="incoming-list-empty" role="status" aria-live="polite" data-testid="empty-requests">
           No incoming requests
         </div>
         <div
           id="incoming-list"
           style="max-height: 400px; overflow-y: auto"
           aria-label="Incoming requests"
+          data-testid="incoming-list"
         >
           <!-- Incoming requests inserted by JavaScript -->
         </div>
@@ -21,13 +22,14 @@
     <div class="col">
       <div class="card">
         <h3>Outgoing Requests</h3>
-        <div class="empty-requests" id="outgoing-list-empty" role="status" aria-live="polite">
+        <div class="empty-requests" id="outgoing-list-empty" role="status" aria-live="polite" data-testid="empty-requests">
           No outgoing requests
         </div>
         <div
           id="outgoing-list"
           style="max-height: 400px; overflow-y: auto"
           aria-label="Outgoing requests"
+          data-testid="outgoing-list"
         >
           <!-- Outgoing requests inserted by JavaScript -->
         </div>

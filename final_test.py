@@ -85,7 +85,7 @@ print('Authorizations:', r.status_code, '-', r.json())
 
 # Bob requests from Ada
 r = httpx.post('http://127.0.0.1:8000/requests', json={
-    'to_handle': 'ada',
+    'payer_handle': 'ada',
     'amount': 500,
     'note': 'test request'
 }, headers={**headers_bob, 'Idempotency-Key': 'test-request-1'})

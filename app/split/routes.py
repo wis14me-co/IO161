@@ -68,7 +68,9 @@ async def create_split(
                 {
                     "request_id": r.id,
                     "requester_id": r.requester_id,
+                    "requester_handle": storage.get_user_by_id(r.requester_id).handle if storage.get_user_by_id(r.requester_id) else "",
                     "payer_id": r.payer_id,
+                    "payer_handle": storage.get_user_by_id(r.payer_id).handle if storage.get_user_by_id(r.payer_id) else "",
                     "amount": r.amount,
                     "note": r.note,
                     "status": r.status,

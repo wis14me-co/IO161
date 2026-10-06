@@ -34,10 +34,9 @@ class CSRFProtectionMiddleware(BaseHTTPMiddleware):
         self.cookie_name = cookie_name
         self.header_name = header_name
         self.form_field_name = form_field_name
+        # Only exempt safe paths and methods - auth endpoints need CSRF protection for browser forms
         self.exempt_paths = exempt_paths or {
             "/health", "/metrics", "/docs", "/openapi.json", "/favicon.ico",
-            "/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/logout",
-            "/auth/login", "/auth/signup", "/auth/logout"
         }
         self.exempt_methods = exempt_methods or {"GET", "HEAD", "OPTIONS"}
     
@@ -49,14 +48,42 @@ class CSRFProtectionMiddleware(BaseHTTPMiddleware):
         if request.method in self.exempt_methods:
             return await call_next(request)
         
-        # Check if request has session cookie (browser client)
-        session_cookie = request.cookies.get("pocketful_session")
-        if not session_cookie:
-            # No session cookie, likely API client - skip CSRF
+        # Skip CSRF for API clients using bearer token
+        auth_header = request.headers.get("authorization", "")
+        if auth_header.startswith("Bearer "):
             return await call_next(request)
         
-        # Get CSRF token from cookie
+        # Check content type - JSON requests without session cookie are likely API clients
+        content_type = request.headers.get("content-type", "")
+        is_json = "application/json" in content_type
+        is_form = "application/x-www-form-urlencoded" in content_type or "multipart/form-data" in content_type
+        
+        session_cookie = request.cookies.get("pocketful_session")
         csrf_cookie = request.cookies.get(self.cookie_name)
+        
+        # Auth endpoints (login, signup, logout) need CSRF protection for browser forms
+        is_auth_endpoint = request.url.path in {
+            "/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/logout",
+            "/auth/login", "/auth/signup", "/auth/logout"
+        }
+        
+        # Determine if this is a browser client that needs CSRF protection
+        is_browser_client = False
+        if session_cookie:
+            # Has session cookie = authenticated browser client
+            is_browser_client = True
+        elif is_auth_endpoint and csrf_cookie and is_form:
+            # Auth endpoint with CSRF cookie and form submission = browser login/signup
+            is_browser_client = True
+        elif is_form and csrf_cookie:
+            # Form submission with CSRF cookie = browser client
+            is_browser_client = True
+        
+        if not is_browser_client:
+            # Not a browser client (likely API client), skip CSRF
+            return await call_next(request)
+        
+        # For browser clients, require CSRF cookie
         if not csrf_cookie:
             logger.warning(f"CSRF validation failed: missing CSRF cookie for {request.method} {request.url.path}")
             return JSONResponse(
@@ -69,10 +96,17 @@ class CSRFProtectionMiddleware(BaseHTTPMiddleware):
         
         # For form data, we need to parse it
         csrf_form = None
-        if request.headers.get("content-type", "").startswith("application/x-www-form-urlencoded"):
+        if is_form:
             try:
-                form = await request.form()
-                csrf_form = form.get(self.form_field_name)
+                # Read raw body to avoid consuming request.form() for route handlers
+                body = await request.body()
+                if body:
+                    # Parse form data manually
+                    from urllib.parse import parse_qs
+                    form_data = parse_qs(body.decode('utf-8'))
+                    # parse_qs returns lists, get first value
+                    form_dict = {k: v[0] if v else '' for k, v in form_data.items()}
+                    csrf_form = form_dict.get(self.form_field_name)
             except Exception:
                 pass
         

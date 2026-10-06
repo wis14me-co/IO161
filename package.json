@@ -8,13 +8,18 @@
     "format": "prettier --write app/static/js app/static/css app/templates",
     "format:check": "prettier --check app/static/js app/static/css app/templates",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build": "terser app/static/js/api.js -o app/static/js/api.min.js -c -m && terser app/static/js/app.js -o app/static/js/app.min.js -c -m && npx postcss app/static/css/design-system.css -o app/static/css/design-system.min.css --use cssnano"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
     "prettier": "^3.2.5",
     "vitest": "^1.2.0",
-    "jsdom": "^24.0.0"
+    "jsdom": "^24.0.0",
+    "terser": "^5.27.0",
+    "cssnano": "^6.0.0",
+    "postcss": "^8.4.0",
+    "postcss-cli": "^10.1.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -32,6 +32,8 @@ async def create_request(
         if payer.id == user_id:
             raise HTTPException(status_code=400, detail=create_error_response("validation_failed", "Cannot request from yourself"))
         
+        requester = storage.get_user_by_id(user_id)
+        
         request = storage.create_request(
             requester_id=user_id,
             payer_id=payer.id,
@@ -42,7 +44,9 @@ async def create_request(
         return {
             "request_id": request.id,
             "requester_id": request.requester_id,
+            "requester_handle": requester.handle if requester else "",
             "payer_id": request.payer_id,
+            "payer_handle": payer.handle,
             "amount": request.amount,
             "note": request.note,
             "status": request.status,
@@ -95,6 +99,16 @@ async def pay_request(
 ):
     """Pay a payment request (payer only)."""
     try:
+        # Check idempotency
+        body = {"visibility": visibility}
+        idempotent_result = storage.check_idempotency(user_id, idempotency_key, "POST", f"/requests/{request_id}/pay", body)
+        if idempotent_result:
+            status_code, response_body = idempotent_result
+            if status_code == 409:
+                raise HTTPException(status_code=409, detail=response_body)
+            # Replay: return 200 with original response body
+            return response_body
+        
         request = storage.get_request(request_id)
         if not request:
             raise HTTPException(status_code=404, detail=create_error_response("not_found", "Request not found"))
@@ -122,7 +136,7 @@ async def pay_request(
         # Update request status
         storage.update_request_status(request_id, "paid", payment.id)
         
-        return {
+        response = {
             "payment_id": payment.id,
             "from_user_id": payment.from_user_id,
             "from_handle": payer.handle,
@@ -135,6 +149,11 @@ async def pay_request(
             "request_id": payment.request_id,
             "created_at": payment.created_at
         }
+        
+        # Store idempotency key
+        storage.store_idempotency(user_id, idempotency_key, "POST", f"/requests/{request_id}/pay", body, 201, response)
+        
+        return response
     except HTTPException:
         raise
     except Exception as e:
@@ -153,11 +172,41 @@ async def decline_request(
             raise HTTPException(status_code=404, detail=create_error_response("not_found", "Request not found"))
         if request.payer_id != user_id:
             raise HTTPException(status_code=403, detail=create_error_response("forbidden", "Only payer can decline request"))
+        
+        # Allow declining already-declined requests (return current state)
         if request.status != "pending":
-            raise HTTPException(status_code=400, detail=create_error_response("validation_failed", "Request not pending"))
+            requester = storage.get_user_by_id(request.requester_id)
+            payer = storage.get_user_by_id(request.payer_id)
+            return {
+                "request_id": request.id,
+                "requester_id": request.requester_id,
+                "requester_handle": requester.handle if requester else "",
+                "payer_id": request.payer_id,
+                "payer_handle": payer.handle if payer else "",
+                "amount": request.amount,
+                "note": request.note,
+                "status": request.status,
+                "payment_id": request.payment_id,
+                "created_at": request.created_at
+            }
         
         storage.update_request_status(request_id, "declined")
-        return {"status": "declined"}
+        
+        requester = storage.get_user_by_id(request.requester_id)
+        payer = storage.get_user_by_id(request.payer_id)
+        
+        return {
+            "request_id": request.id,
+            "requester_id": request.requester_id,
+            "requester_handle": requester.handle if requester else "",
+            "payer_id": request.payer_id,
+            "payer_handle": payer.handle if payer else "",
+            "amount": request.amount,
+            "note": request.note,
+            "status": "declined",
+            "payment_id": None,
+            "created_at": request.created_at
+        }
     except HTTPException:
         raise
     except Exception as e:
@@ -176,11 +225,41 @@ async def cancel_request(
             raise HTTPException(status_code=404, detail=create_error_response("not_found", "Request not found"))
         if request.requester_id != user_id:
             raise HTTPException(status_code=403, detail=create_error_response("forbidden", "Only requester can cancel request"))
+        
+        # Allow canceling already-cancelled requests (return current state)
         if request.status != "pending":
-            raise HTTPException(status_code=400, detail=create_error_response("validation_failed", "Request not pending"))
+            requester = storage.get_user_by_id(request.requester_id)
+            payer = storage.get_user_by_id(request.payer_id)
+            return {
+                "request_id": request.id,
+                "requester_id": request.requester_id,
+                "requester_handle": requester.handle if requester else "",
+                "payer_id": request.payer_id,
+                "payer_handle": payer.handle if payer else "",
+                "amount": request.amount,
+                "note": request.note,
+                "status": request.status,
+                "payment_id": request.payment_id,
+                "created_at": request.created_at
+            }
         
         storage.update_request_status(request_id, "cancelled")
-        return {"status": "cancelled"}
+        
+        requester = storage.get_user_by_id(request.requester_id)
+        payer = storage.get_user_by_id(request.payer_id)
+        
+        return {
+            "request_id": request.id,
+            "requester_id": request.requester_id,
+            "requester_handle": requester.handle if requester else "",
+            "payer_id": request.payer_id,
+            "payer_handle": payer.handle if payer else "",
+            "amount": request.amount,
+            "note": request.note,
+            "status": "cancelled",
+            "payment_id": None,
+            "created_at": request.created_at
+        }
     except HTTPException:
         raise
     except Exception as e:
