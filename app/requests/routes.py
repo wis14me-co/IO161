@@ -1,23 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Header
+from fastapi import APIRouter, Depends, HTTPException, Query, Header, Body
 from typing import Optional, List
+from pydantic import BaseModel
 from app.deps import get_current_user
 from app.storage import storage
 from app.validation import create_error_response
+
+class RequestCreate(BaseModel):
+    to_handle: str
+    amount: int
+    note: str = ""
+
+
+class PayRequest(BaseModel):
+    visibility: str = "private"
+
 
 router = APIRouter(tags=["requests"])
 
 
 @router.post("", status_code=201)
 async def create_request(
-    to_handle: str,
-    amount: int,
-    note: str = "",
+    request_data: RequestCreate = Body(...),
     user_id: str = Depends(get_current_user),
     idempotency_key: str = Header(..., alias="Idempotency-Key")
 ):
     """Create a new payment request."""
     try:
-        payer = storage.get_user_by_handle(to_handle)
+        payer = storage.get_user_by_handle(request_data.to_handle)
         if not payer:
             raise HTTPException(status_code=404, detail=create_error_response("not_found", "User not found"))
         if payer.id == user_id:
@@ -26,8 +35,8 @@ async def create_request(
         request = storage.create_request(
             requester_id=user_id,
             payer_id=payer.id,
-            amount=amount,
-            note=note
+            amount=request_data.amount,
+            note=request_data.note
         )
         
         return {

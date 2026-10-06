@@ -23,7 +23,7 @@ def wants_html(request: Request) -> bool:
     return "text/html" in accept
 
 
-@router.get("/", response_class=HTMLResponse, name="index")
+@router.get("/", name="index")
 async def index(request: Request, user_id: str = Depends(get_current_user_optional)):
     """Serve the home dashboard page or JSON API based on Accept header."""
     if wants_html(request):
@@ -38,7 +38,7 @@ async def index(request: Request, user_id: str = Depends(get_current_user_option
             "csrf_token": csrf_token,
             "held": held
         })
-    return {"message": "Welcome to Pocketful API"}
+    return JSONResponse(content={"message": "Welcome to Pocketful API"})
 
 
 @router.get("/signup", response_class=HTMLResponse, name="signup")

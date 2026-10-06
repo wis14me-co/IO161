@@ -316,29 +316,26 @@ def setup_middleware(app, config):
     Order matters - middleware is applied in reverse order (last added = first executed).
     """
     
-    # 1. Error handling (outermost - catches all errors)
-    app.add_middleware(ErrorHandlingMiddleware, debug=config.DEBUG)
-    
-    # 2. Security headers
+    # 1. Security headers
     app.add_middleware(SecurityHeadersMiddleware)
     
-    # 3. Rate limiting
+    # 2. Rate limiting
     app.add_middleware(
         RateLimitMiddleware,
         requests_per_minute=config.RATE_LIMIT_PER_MINUTE if hasattr(config, 'RATE_LIMIT_PER_MINUTE') else 60,
         requests_per_hour=config.RATE_LIMIT_PER_HOUR if hasattr(config, 'RATE_LIMIT_PER_HOUR') else 1000
     )
     
-    # 4. Request size limiting
+    # 3. Request size limiting
     app.add_middleware(
         RequestSizeLimitMiddleware,
         max_size=getattr(config, 'MAX_REQUEST_SIZE', 10 * 1024 * 1024)
     )
     
-    # 5. Correlation ID tracking
+    # 4. Correlation ID tracking
     app.add_middleware(CorrelationIDMiddleware)
     
-    # 6. Request logging
+    # 5. Request logging
     app.add_middleware(
         RequestLoggingMiddleware,
         log_level=logging.DEBUG if config.DEBUG else logging.INFO,
@@ -346,7 +343,7 @@ def setup_middleware(app, config):
         log_response_body=False
     )
     
-    # 7. CORS (innermost - runs first)
+    # 6. CORS (innermost - runs first)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.BACKEND_CORS_ORIGINS,

@@ -17,6 +17,15 @@ async def create_payment(
 ):
     """Create a new payment."""
     try:
+        # Check idempotency
+        body = payment_data.model_dump()
+        idempotent_result = storage.check_idempotency(user_id, idempotency_key, "POST", "/api/v1/payments", body)
+        if idempotent_result:
+            status_code, response_body = idempotent_result
+            if status_code == 409:
+                raise HTTPException(status_code=409, detail=response_body)
+            return PaymentResponse(**response_body)
+        
         payment_obj = payment_service.create_payment(
             from_user_id=user_id,
             to_handle=payment_data.to_handle,
@@ -28,7 +37,7 @@ async def create_payment(
         from_user = storage.get_user_by_id(payment_obj.from_user_id)
         to_user = storage.get_user_by_id(payment_obj.to_user_id)
         
-        return PaymentResponse(
+        response = PaymentResponse(
             payment_id=payment_obj.id,
             from_user_id=payment_obj.from_user_id,
             from_handle=from_user.handle if from_user else "",
@@ -41,6 +50,13 @@ async def create_payment(
             request_id=payment_obj.request_id,
             created_at=payment_obj.created_at
         )
+        
+        # Store idempotency key
+        storage.store_idempotency(user_id, idempotency_key, "POST", "/api/v1/payments", body, 201, response.model_dump())
+        
+        return response
+    except HTTPException:
+        raise
     except Exception as e:
         if hasattr(e, 'status_code'):
             raise HTTPException(status_code=e.status_code, detail=create_error_response(e.code, e.message))

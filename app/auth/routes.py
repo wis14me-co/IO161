@@ -40,9 +40,9 @@ def read_users_me(user_id: str = Depends(get_current_user)):
     current_user = storage.get_user_by_id(user_id)
     if not current_user:
         raise HTTPException(status_code=404, detail=create_error_response("not_found", "User not found"))
-    # Calculate held (sum of open OUTGOING authorizations where user is payer) and available
+    # Calculate held (sum of remaining amounts of open OUTGOING authorizations where user is payer) and available
     auths = storage.get_authorizations_for_user(current_user.id, direction="outgoing", status="open")
-    held = sum(a.amount for a in auths)
+    held = sum(a.remaining_amount for a in auths)
     available = max(0, current_user.balance - held)
     
     return UserResponse(
@@ -57,5 +57,7 @@ def read_users_me(user_id: str = Depends(get_current_user)):
         balance=current_user.balance,
         total=current_user.balance,
         available=available,
-        held=held
+        held=held,
+        currency=storage.currency,
+        minor_units=storage.minor_units
     )

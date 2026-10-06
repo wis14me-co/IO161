@@ -41,7 +41,7 @@ class AuthorizationService:
 
         # Check available funds (balance - held)
         auths = self.storage.get_authorizations_for_user(from_user_id, direction="outgoing", status="open")
-        held = sum(a.amount for a in auths)
+        held = sum(a.remaining_amount for a in auths)
         available = max(0, from_user.balance - held)
 
         if available < amount:

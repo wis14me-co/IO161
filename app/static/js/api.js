@@ -120,7 +120,7 @@ class ApiClient {
 
     // Splits
     async createSplit(amount, handles, note) {
-        return this.post('/splits', { amount, handles, note });
+        return this.post('/splits', { amount, participant_handles: handles, note });
     }
 
     // Activity

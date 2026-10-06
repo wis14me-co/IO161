@@ -9,6 +9,7 @@ from app.settlement.routes import router as settlement_router
 from app.authorization.routes import router as authorization_router
 from app.requests.routes import router as requests_router
 from app.split.routes import router as split_router
+from app.test.routes import router as test_router
 from app.websocket.routes import router as websocket_router
 from app.frontend.routes import router as frontend_router
 from app.core import setup_middleware
@@ -47,7 +48,8 @@ app.include_router(payments_router, prefix=settings.API_V1_PREFIX + "/payments",
 app.include_router(settlement_router, prefix=settings.API_V1_PREFIX + "/settlements", tags=["settlements"])
 app.include_router(authorization_router, prefix=settings.API_V1_PREFIX + "/authorizations", tags=["authorizations"])
 app.include_router(requests_router, prefix=settings.API_V1_PREFIX + "/requests", tags=["requests"])
-app.include_router(split_router, prefix=settings.API_V1_PREFIX + "/split", tags=["split"])
+app.include_router(split_router, prefix=settings.API_V1_PREFIX + "/splits", tags=["splits"])
+app.include_router(test_router, tags=["test"])
 app.include_router(websocket_router)
 app.include_router(frontend_router)
 
@@ -55,8 +57,3 @@ app.include_router(frontend_router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
-
-
-@app.get("/")
-def root():
-    return {"message": "Welcome to Pocketful API"}

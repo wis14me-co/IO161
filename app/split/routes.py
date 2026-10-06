@@ -1,30 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Body
 from typing import List
+from pydantic import BaseModel
 from app.deps import get_current_user
 from app.storage import storage
 from app.validation import create_error_response
 
+
+class SplitCreate(BaseModel):
+    amount: int
+    participant_handles: List[str]
+    note: str = ""
+
+
 router = APIRouter(tags=["split"])
 
 
-@router.post("/splits", status_code=201)
+@router.post("", status_code=201)
 async def create_split(
-    amount: int,
-    handles: List[str],
-    note: str = "",
+    split_data: SplitCreate = Body(...),
     user_id: str = Depends(get_current_user),
     idempotency_key: str = Header(..., alias="Idempotency-Key")
 ):
     """Create a split bill among participants."""
     try:
-        if amount < 1 or amount > 1_000_000_000:
-            raise HTTPException(status_code=422, detail=create_error_response("validation_failed", "Amount must be between 1 and 1000000000"))
-        
-        if len(handles) < 2:
-            raise HTTPException(status_code=422, detail=create_error_response("validation_failed", "At least 2 participants required"))
-        
-        if len(note) > 200:
-            raise HTTPException(status_code=422, detail=create_error_response("validation_failed", "Note must be at most 200 characters"))
+        amount = split_data.amount
+        handles = split_data.participant_handles
+        note = split_data.note
         
         # Verify all handles exist
         participant_users = []

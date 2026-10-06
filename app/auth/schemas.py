@@ -34,6 +34,8 @@ class UserResponse(UserBase):
     total: int
     available: int
     held: int
+    currency: str
+    minor_units: int
     
     class Config:
         from_attributes = True
