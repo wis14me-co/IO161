@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 from app.config import get_settings
 from app.database import init_db
 from app.auth.routes import router as auth_router
 from app.payments.routes import router as payments_router
 from app.settlement.routes import router as settlement_router
 from app.authorization.routes import router as authorization_router
+from app.requests.routes import router as requests_router
+from app.split.routes import router as split_router
 from app.websocket.routes import router as websocket_router
+from app.frontend.routes import router as frontend_router
 from app.core import setup_middleware
 from app.storage import storage
 from app.websocket.manager import manager
@@ -29,6 +33,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 # Setup WebSocket manager in storage for notifications
 storage.set_websocket_manager(manager)
 
@@ -39,7 +46,9 @@ app.include_router(auth_router, prefix=settings.API_V1_PREFIX + "/auth", tags=["
 app.include_router(payments_router, prefix=settings.API_V1_PREFIX + "/payments", tags=["payments"])
 app.include_router(settlement_router, prefix=settings.API_V1_PREFIX + "/settlements", tags=["settlements"])
 app.include_router(authorization_router, prefix=settings.API_V1_PREFIX + "/authorizations", tags=["authorizations"])
+app.include_router(split_router, prefix=settings.API_V1_PREFIX + "/splits", tags=["splits"])
 app.include_router(websocket_router)
+app.include_router(frontend_router)
 
 
 @app.get("/health")
