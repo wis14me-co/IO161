@@ -11,7 +11,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
     display_name: str
-    handle: str
+    handle: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -29,10 +29,6 @@ class UserResponse(BaseModel):
     email: EmailStr
     display_name: str
     handle: str
-    is_active: bool = True
-    is_superuser: bool = False
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
     balance: int
     total: int
     available: int

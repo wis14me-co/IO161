@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 from fastapi import Request, HTTPException, Query
-from pydantic import ValidationError
+from pydantic import ValidationError as PydanticValidationError
 import json
 import re
 
@@ -33,12 +33,6 @@ def validate_idempotency_key(key: Optional[str]) -> str:
     if len(key) > 255:
         raise ValidationError("validation_failed", "Idempotency-Key must be at most 255 characters", 422)
     return key.strip()
-
-
-def validate_amount(amount: int) -> int:
-    if not isinstance(amount, int) or amount < 1 or amount > 1_000_000_000:
-        raise ValidationError("validation_failed", "amount must be integer 1..1000000000", 422)
-    return amount
 
 
 def validate_handle(handle: str) -> str:

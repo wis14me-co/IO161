@@ -41,6 +41,13 @@ class AuthorizationService:
         note = validate_note(note)
         visibility = validate_visibility(visibility)
 
+        # Validate expires_at format if provided (RFC3339)
+        if expires_at is not None:
+            try:
+                datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+            except ValueError:
+                raise ValidationError("validation_failed", "expires_at must be a valid RFC 3339 timestamp", 422)
+
         # Check available funds (balance - held)
         auths = self.storage.get_authorizations_for_user(from_user_id, direction="outgoing", status="open")
         held = sum(a.remaining_amount for a in auths)

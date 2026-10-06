@@ -199,9 +199,30 @@ def handle_app_exception(request, exc: AppException):
     return JSONResponse(
         status_code=exc.status_code,
         content={
-            "code": exc.code,
-            "message": exc.message,
-            "details": exc.details
+            "error": {
+                "code": exc.code,
+                "message": exc.message
+            }
+        }
+    )
+
+
+def handle_http_exception(request, exc: HTTPException):
+    """FastAPI exception handler for HTTPException - format to match spec."""
+    from starlette.responses import JSONResponse
+    # If detail is already in the right format, use it
+    if isinstance(exc.detail, dict) and "error" in exc.detail:
+        return JSONResponse(status_code=exc.status_code, content=exc.detail)
+    # Otherwise wrap in error format
+    code = exc.detail.get("code", "unknown") if isinstance(exc.detail, dict) else "unknown"
+    message = exc.detail.get("message", str(exc.detail)) if isinstance(exc.detail, dict) else str(exc.detail)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": {
+                "code": code,
+                "message": message
+            }
         }
     )
 
@@ -211,18 +232,25 @@ def handle_validation_exception(request, exc):
     from starlette.responses import JSONResponse
     from fastapi.exceptions import RequestValidationError
     if isinstance(exc, RequestValidationError):
+        # Extract first error for simple message
+        first_error = exc.errors()[0] if exc.errors() else {}
+        field = ".".join(str(x) for x in first_error.get("loc", []))
+        msg = first_error.get("msg", "Validation failed")
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
-                "code": "validation_error",
-                "message": "Request validation failed",
-                "details": {"errors": exc.errors()}
+                "error": {
+                    "code": "validation_failed",
+                    "message": f"{field}: {msg}" if field else msg
+                }
             }
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
-            "code": "internal_error",
-            "message": "Internal server error"
+            "error": {
+                "code": "internal_error",
+                "message": "Internal server error"
+            }
         }
     )

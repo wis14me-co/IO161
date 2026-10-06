@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
+from fastapi.exceptions import RequestValidationError
+from fastapi import HTTPException
 from app.config import get_settings
 from app.database import init_db
 from app.auth.routes import router as auth_router
@@ -13,6 +15,7 @@ from app.test.routes import router as test_router
 from app.websocket.routes import router as websocket_router
 from app.frontend.routes import router as frontend_router
 from app.core import setup_middleware
+from app.core.exceptions import handle_app_exception, handle_validation_exception, handle_http_exception, AppException
 from app.storage import storage
 from app.websocket.manager import manager
 
@@ -33,6 +36,11 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
     lifespan=lifespan
 )
+
+# Exception handlers
+app.add_exception_handler(AppException, handle_app_exception)
+app.add_exception_handler(RequestValidationError, handle_validation_exception)
+app.add_exception_handler(HTTPException, handle_http_exception)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

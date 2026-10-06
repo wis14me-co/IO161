@@ -70,8 +70,16 @@ class AuthService:
         if self.storage.get_user_by_email(user_data.email):
             raise ValidationError("email_already_exists", "Email already exists")
         
+        # Derive handle from email if not provided
+        handle = user_data.handle
+        if not handle:
+            # Take local part, lowercase, replace non-[a-z0-9_] with _, truncate to 20 chars
+            import re
+            local_part = user_data.email.split("@")[0].lower()
+            handle = re.sub(r"[^a-z0-9_]", "_", local_part)[:20]
+        
         # Check if handle exists
-        if self.storage.get_user_by_handle(user_data.handle):
+        if self.storage.get_user_by_handle(handle):
             raise ValidationError("handle_already_exists", "Handle already exists")
         
         # Create user (storage handles password hashing)
@@ -79,7 +87,7 @@ class AuthService:
             email=user_data.email,
             password=user_data.password,
             display_name=user_data.display_name,
-            handle=user_data.handle
+            handle=handle
         )
         return user
     

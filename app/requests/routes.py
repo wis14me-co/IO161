@@ -6,7 +6,7 @@ from app.storage import storage
 from app.validation import create_error_response
 
 class RequestCreate(BaseModel):
-    to_handle: str
+    payer_handle: str
     amount: int
     note: str = ""
 
@@ -26,7 +26,7 @@ async def create_request(
 ):
     """Create a new payment request."""
     try:
-        payer = storage.get_user_by_handle(request_data.to_handle)
+        payer = storage.get_user_by_handle(request_data.payer_handle)
         if not payer:
             raise HTTPException(status_code=404, detail=create_error_response("not_found", "User not found"))
         if payer.id == user_id:
