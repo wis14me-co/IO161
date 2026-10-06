@@ -46,7 +46,8 @@ app.include_router(auth_router, prefix=settings.API_V1_PREFIX + "/auth", tags=["
 app.include_router(payments_router, prefix=settings.API_V1_PREFIX + "/payments", tags=["payments"])
 app.include_router(settlement_router, prefix=settings.API_V1_PREFIX + "/settlements", tags=["settlements"])
 app.include_router(authorization_router, prefix=settings.API_V1_PREFIX + "/authorizations", tags=["authorizations"])
-app.include_router(split_router, prefix=settings.API_V1_PREFIX + "/splits", tags=["splits"])
+app.include_router(requests_router, prefix=settings.API_V1_PREFIX + "/requests", tags=["requests"])
+app.include_router(split_router, prefix=settings.API_V1_PREFIX + "/split", tags=["split"])
 app.include_router(websocket_router)
 app.include_router(frontend_router)
 
