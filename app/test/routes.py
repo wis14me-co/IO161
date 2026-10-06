@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Response
 from typing import Optional, Dict, Any
 from pydantic import BaseModel
 from app.storage import storage
@@ -8,15 +8,20 @@ router = APIRouter()
 
 
 @router.post("/_test/reset")
-async def reset_state(fixture: Optional[Fixture] = Body(default=None)):
-    """Reset the service state with an optional fixture."""
+async def reset_state(fixture: Optional[Fixture] = Body(default=None), response: Response = None):
+    """Reset the service state with an optional fixture.
+    
+    Returns 204 No Content on success (as required by the harness).
+    """
     try:
         if fixture:
             errors = storage.validate_fixture(fixture)
             if errors:
                 raise HTTPException(status_code=422, detail={"code": "validation_failed", "message": "; ".join(errors)})
         storage.reset(fixture)
-        return {"status": "ok"}
+        if response:
+            response.status_code = 204
+        return Response(status_code=204)
     except HTTPException:
         raise
     except Exception as e:

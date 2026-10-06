@@ -20,7 +20,9 @@ class Authorization:
 
     @property
     def remaining_amount(self) -> int:
-        return self.amount - self.captured_amount
+        if self.status != "open":
+            return 0
+        return max(0, self.amount - self.captured_amount)
 
     def to_dict(self) -> dict:
         return {

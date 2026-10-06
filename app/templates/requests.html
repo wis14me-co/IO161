@@ -1,30 +1,38 @@
-{% extends "base.html" %}
-
-{% block title %}Pocketful - Requests{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Pocketful - Requests{% endblock %} {% block content %}
 <h1>Pocketful - Requests</h1>
 
 <div class="container">
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <h3>Incoming Requests</h3>
-                <div class="empty-requests" id="incoming-list-empty" role="status" aria-live="polite">No incoming requests</div>
-                <div id="incoming-list" style="max-height: 400px; overflow-y: auto;" aria-label="Incoming requests">
-                    <!-- Incoming requests inserted by JavaScript -->
-                </div>
-            </div>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Incoming Requests</h3>
+        <div class="empty-requests" id="incoming-list-empty" role="status" aria-live="polite">
+          No incoming requests
         </div>
-        <div class="col">
-            <div class="card">
-                <h3>Outgoing Requests</h3>
-                <div class="empty-requests" id="outgoing-list-empty" role="status" aria-live="polite">No outgoing requests</div>
-                <div id="outgoing-list" style="max-height: 400px; overflow-y: auto;" aria-label="Outgoing requests">
-                    <!-- Outgoing requests inserted by JavaScript -->
-                </div>
-            </div>
+        <div
+          id="incoming-list"
+          style="max-height: 400px; overflow-y: auto"
+          aria-label="Incoming requests"
+        >
+          <!-- Incoming requests inserted by JavaScript -->
         </div>
+      </div>
     </div>
+    <div class="col">
+      <div class="card">
+        <h3>Outgoing Requests</h3>
+        <div class="empty-requests" id="outgoing-list-empty" role="status" aria-live="polite">
+          No outgoing requests
+        </div>
+        <div
+          id="outgoing-list"
+          style="max-height: 400px; overflow-y: auto"
+          aria-label="Outgoing requests"
+        >
+          <!-- Outgoing requests inserted by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,12 +1,12 @@
 import time
 import logging
 import uuid
-from typing import Callable, Optional, Dict, Any
+from typing import Callable, Optional, Dict, Any, Set
 from collections import defaultdict
 from fastapi import Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response as StarletteResponse
 from starlette.types import ASGIApp
 
 from app.core.exceptions import (
@@ -16,6 +16,76 @@ from app.core.exceptions import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class CSRFProtectionMiddleware(BaseHTTPMiddleware):
+    """Middleware for CSRF protection using double-submit cookie pattern."""
+    
+    def __init__(
+        self,
+        app: ASGIApp,
+        cookie_name: str = "pocketful_csrf",
+        header_name: str = "X-CSRF-Token",
+        form_field_name: str = "csrf_token",
+        exempt_paths: Optional[Set[str]] = None,
+        exempt_methods: Optional[Set[str]] = None,
+    ):
+        super().__init__(app)
+        self.cookie_name = cookie_name
+        self.header_name = header_name
+        self.form_field_name = form_field_name
+        self.exempt_paths = exempt_paths or {
+            "/health", "/metrics", "/docs", "/openapi.json", "/favicon.ico",
+            "/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/logout",
+            "/auth/login", "/auth/signup", "/auth/logout"
+        }
+        self.exempt_methods = exempt_methods or {"GET", "HEAD", "OPTIONS"}
+    
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # Skip CSRF check for exempt paths and safe methods
+        if request.url.path in self.exempt_paths:
+            return await call_next(request)
+        
+        if request.method in self.exempt_methods:
+            return await call_next(request)
+        
+        # Check if request has session cookie (browser client)
+        session_cookie = request.cookies.get("pocketful_session")
+        if not session_cookie:
+            # No session cookie, likely API client - skip CSRF
+            return await call_next(request)
+        
+        # Get CSRF token from cookie
+        csrf_cookie = request.cookies.get(self.cookie_name)
+        if not csrf_cookie:
+            logger.warning(f"CSRF validation failed: missing CSRF cookie for {request.method} {request.url.path}")
+            return JSONResponse(
+                status_code=403,
+                content={"code": "csrf_failed", "message": "CSRF token missing"}
+            )
+        
+        # Get CSRF token from header or form
+        csrf_header = request.headers.get(self.header_name)
+        
+        # For form data, we need to parse it
+        csrf_form = None
+        if request.headers.get("content-type", "").startswith("application/x-www-form-urlencoded"):
+            try:
+                form = await request.form()
+                csrf_form = form.get(self.form_field_name)
+            except Exception:
+                pass
+        
+        # Validate CSRF token
+        csrf_submitted = csrf_header or csrf_form
+        if not csrf_submitted or csrf_submitted != csrf_cookie:
+            logger.warning(f"CSRF validation failed: token mismatch for {request.method} {request.url.path}")
+            return JSONResponse(
+                status_code=403,
+                content={"code": "csrf_failed", "message": "CSRF token validation failed"}
+            )
+        
+        return await call_next(request)
 
 
 class CorrelationIDMiddleware(BaseHTTPMiddleware):
@@ -343,7 +413,10 @@ def setup_middleware(app, config):
         log_response_body=False
     )
     
-    # 6. CORS (innermost - runs first)
+    # 6. CSRF Protection (runs after logging, before CORS)
+    app.add_middleware(CSRFProtectionMiddleware)
+    
+    # 7. CORS (innermost - runs first)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.BACKEND_CORS_ORIGINS,

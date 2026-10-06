@@ -1,0 +1,22 @@
+{
+  "name": "pocketful-frontend",
+  "version": "1.0.0",
+  "description": "Pocketful Payment System Frontend",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint tests/frontend --ext .js",
+    "format": "prettier --write app/static/js app/static/css app/templates",
+    "format:check": "prettier --check app/static/js app/static/css app/templates",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "vitest": "^1.2.0",
+    "jsdom": "^24.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

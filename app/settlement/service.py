@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from app.storage import storage, User, Payment, FixturePayment
 from app.validation import (
-    validate_amount, validate_handle, validate_note, validate_visibility,
+    validate_handle, validate_note, validate_visibility,
     create_error_response, ValidationError
 )
 from app.settlement.models import SettlementTransfer, SettlementPayment, Settlement, calculate_shares
@@ -31,7 +31,10 @@ class SettlementService:
         if from_user.id == to_user.id:
             raise ValidationError("self_payment", "Cannot transfer to yourself", 422)
 
-        amount = validate_amount(transfer.amount)
+        amount = transfer.amount
+        if not isinstance(amount, int) or amount <= 0:
+            raise ValidationError("validation_failed", "Amount must be a positive integer", 422)
+
         note = validate_note(transfer.note)
         visibility = validate_visibility(transfer.visibility)
 

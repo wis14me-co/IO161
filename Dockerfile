@@ -24,7 +24,7 @@ RUN useradd --create-home --shell /bin/bash appuser
 # Copy installed packages from builder
 COPY --from=builder /root/.local /home/appuser/.local
 
-# Copy application code
+# Copy application code (includes static assets - no external CDN deps)
 COPY app/ ./app/
 
 # Set ownership

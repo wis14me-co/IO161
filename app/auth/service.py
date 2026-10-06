@@ -53,7 +53,7 @@ class AuthService:
         self.storage = storage_instance or default_storage
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        return verify_password(plain_password, hashed_password)
+        return self.storage.verify_password(plain_password, hashed_password)
     
     def get_password_hash(self, password: str) -> str:
         return get_password_hash(password)
@@ -74,10 +74,7 @@ class AuthService:
         if self.storage.get_user_by_handle(user_data.handle):
             raise ValidationError("handle_already_exists", "Handle already exists")
         
-        # Hash password
-        password_hash = self.get_password_hash(user_data.password)
-        
-        # Create user
+        # Create user (storage handles password hashing)
         user = self.storage.create_user(
             email=user_data.email,
             password=user_data.password,
@@ -92,7 +89,7 @@ class AuthService:
         if not user:
             raise ValidationError("invalid_credentials", "Invalid credentials")
         
-        if not self.verify_password(login_data.password, user.password_hash):
+        if not self.storage.verify_password(user, login_data.password):
             raise ValidationError("invalid_credentials", "Invalid credentials")
         
         # Create token

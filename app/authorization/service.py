@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from app.storage import storage, User, Payment, Authorization
 from app.validation import (
-    validate_amount, validate_handle, validate_note, validate_visibility, validate_direction,
+    validate_handle, validate_note, validate_visibility, validate_direction,
     create_error_response, ValidationError, validate_authorization_status
 )
 from app.authorization.models import Authorization
@@ -35,7 +35,9 @@ class AuthorizationService:
         if to_user.id == from_user_id:
             raise ValidationError("self_auth", "Cannot create authorization to yourself", 422)
 
-        amount = validate_amount(amount)
+        if not isinstance(amount, int) or amount <= 0:
+            raise ValidationError("validation_failed", "Amount must be a positive integer", 422)
+
         note = validate_note(note)
         visibility = validate_visibility(visibility)
 

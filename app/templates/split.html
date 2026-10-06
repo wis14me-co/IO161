@@ -1,44 +1,85 @@
-{% extends "base.html" %}
-
-{% block title %}Pocketful - Split{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Pocketful - Split{% endblock %} {% block content %}
 <h1>Pocketful - Split</h1>
 
 <div class="container">
-    <div class="card">
-        <h3>Split Bill</h3>
-        
-        <div class="form-group">
-            <label class="form-label" for="split-amount">Total Amount</label>
-            <input type="text" id="split-amount" class="input" placeholder="30.00" inputmode="decimal" aria-describedby="split-amount-help">
-            <div id="split-amount-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter total amount in EUR</div>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label" for="split-handles">Participant Handles</label>
-            <input type="text" id="split-handles" class="input" placeholder="ada,bob,cy (comma-separated)" aria-describedby="split-handles-help">
-            <div id="split-handles-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter comma-separated participant handles</div>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label" for="split-note">Note</label>
-            <input type="text" id="split-note" class="input" placeholder="dinner" aria-describedby="split-note-help">
-            <div id="split-note-help" class="form-text" style="display: none; color: var(--text-secondary);">Optional note for the split</div>
-        </div>
-        
-        <button id="split-submit" class="btn" aria-label="Create split">Create Split</button>
-        <div id="split-error" class="form-text" style="display: none; color: var(--negative);" role="alert" aria-live="polite"></div>
+  <div class="card">
+    <h3>Split Bill</h3>
+
+    <div class="form-group">
+      <label class="form-label" for="split-amount">Total Amount</label>
+      <input
+        type="text"
+        id="split-amount"
+        class="input"
+        placeholder="30.00"
+        inputmode="decimal"
+        aria-describedby="split-amount-help"
+      />
+      <div
+        id="split-amount-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Enter total amount in EUR
+      </div>
     </div>
-    
-    <div class="card" style="margin-top: var(--space-lg);">
-        <h3>Share Preview</h3>
-        <div id="split-preview" style="display: none;">
-            <div class="split-share" id="share-ada">Ada: --</div>
-            <div class="split-share" id="share-bob">Bob: --</div>
-            <div class="split-share" id="share-cy">Cy: --</div>
-        </div>
-        <div class="empty-splits" style="display: none; color: var(--text-secondary);">No shares to display</div>
+
+    <div class="form-group">
+      <label class="form-label" for="split-handles">Participant Handles</label>
+      <input
+        type="text"
+        id="split-handles"
+        class="input"
+        placeholder="ada,bob,cy (comma-separated)"
+        aria-describedby="split-handles-help"
+      />
+      <div
+        id="split-handles-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Enter comma-separated participant handles
+      </div>
     </div>
+
+    <div class="form-group">
+      <label class="form-label" for="split-note">Note</label>
+      <input
+        type="text"
+        id="split-note"
+        class="input"
+        placeholder="dinner"
+        aria-describedby="split-note-help"
+      />
+      <div
+        id="split-note-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Optional note for the split
+      </div>
+    </div>
+
+    <button id="split-submit" class="btn" aria-label="Create split">Create Split</button>
+    <div
+      id="split-error"
+      class="form-text"
+      style="display: none; color: var(--negative)"
+      role="alert"
+      aria-live="polite"
+    ></div>
+  </div>
+
+  <div class="card" style="margin-top: var(--space-lg)">
+    <h3>Share Preview</h3>
+    <div id="split-preview" style="display: none">
+      <div class="split-share" id="share-ada">Ada: --</div>
+      <div class="split-share" id="share-bob">Bob: --</div>
+      <div class="split-share" id="share-cy">Cy: --</div>
+    </div>
+    <div class="empty-splits" style="display: none; color: var(--text-secondary)">
+      No shares to display
+    </div>
+  </div>
 </div>
 {% endblock %}

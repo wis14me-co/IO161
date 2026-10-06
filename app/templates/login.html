@@ -1,33 +1,68 @@
-{% extends "base.html" %}
-
-{% block title %}Pocketful - Login{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Pocketful - Login{% endblock %} {% block content %}
 <h1>Pocketful - Login</h1>
 
 <div class="card">
-    <h3>Login</h3>
-    
+  <h3>Login</h3>
+
+  <form method="post" action="/api/v1/auth/login" data-testid="login-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
     <div class="form-group">
-        <label class="form-label" for="login-email">Email</label>
-        <input type="email" id="login-email" class="input" required data-testid="login-email" aria-describedby="email-help">
+      <label class="form-label" for="login-email">Email</label>
+      <input
+        type="email"
+        id="login-email"
+        name="email"
+        class="input"
+        required
+        data-testid="login-email"
+        aria-describedby="email-help"
+      />
     </div>
-    <div id="email-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter your registered email address</div>
-    
+    <div id="email-help" class="form-text" style="display: none; color: var(--text-secondary)">
+      Enter your registered email address
+    </div>
+
     <div class="form-group">
-        <label class="form-label" for="login-password">Password</label>
-        <input type="password" id="login-password" class="input" required minlength="8" data-testid="login-password" aria-describedby="password-help">
+      <label class="form-label" for="login-password">Password</label>
+      <input
+        type="password"
+        id="login-password"
+        name="password"
+        class="input"
+        required
+        minlength="8"
+        data-testid="login-password"
+        aria-describedby="password-help"
+      />
     </div>
-    <div id="password-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter your password (minimum 8 characters)</div>
-    
-    <button id="login-submit" class="btn" data-testid="login-submit">Login</button>
-    <div id="auth-error" class="form-text" style="display: none; color: var(--negative);" data-testid="auth-error" role="alert" aria-live="polite"></div>
+    <div id="password-help" class="form-text" style="display: none; color: var(--text-secondary)">
+      Enter your password (minimum 8 characters)
+    </div>
+
+    <button id="login-submit" class="btn" data-testid="login-submit" type="submit">Login</button>
+    <div
+      id="auth-error"
+      class="form-text"
+      style="display: none; color: var(--negative)"
+      data-testid="auth-error"
+      role="alert"
+      aria-live="polite"
+    ></div>
+  </form>
 </div>
 
-<div class="card" style="margin-top: var(--space-lg);">
-    <h3>Signed In As</h3>
-    <div id="current-user" style="display: none;" data-testid="current-user" role="status" aria-live="polite"></div>
-    <span id="current-handle" data-testid="current-handle">Not signed in</span>
-    <button id="logout-button" style="display: none;" class="btn" data-testid="logout-button">Logout</button>
+<div class="card" style="margin-top: var(--space-lg)">
+  <h3>Signed In As</h3>
+  <div
+    id="current-user"
+    style="display: none"
+    data-testid="current-user"
+    role="status"
+    aria-live="polite"
+  ></div>
+  <span id="current-handle" data-testid="current-handle">Not signed in</span>
+  <button id="logout-button" style="display: none" class="btn" data-testid="logout-button">
+    Logout
+  </button>
 </div>
 {% endblock %}

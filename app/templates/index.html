@@ -1,110 +1,267 @@
-{% extends "base.html" %}
-
-{% block title %}Pocketful - Dashboard{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Pocketful - Dashboard{% endblock %} {% block content %}
 <h1>Pocketful</h1>
 
 <!-- Wallet Summary -->
-<div class="card" style="margin-bottom: var(--space-lg);">
-    <div class="row">
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">Total Balance</label>
-                <div id="wallet-balance" class="input" disabled aria-label="Total balance" role="status" aria-live="polite" data-testid="wallet-balance" data-amount="0">0.00 EUR</div>
-                <input type="hidden" id="wallet-balance-minor" value="0">
-            </div>
+<div class="card" style="margin-bottom: var(--space-lg)">
+  <div class="row">
+    <div class="col">
+      <div class="form-group">
+        <label class="form-label">Total Balance</label>
+        <div
+          id="wallet-balance"
+          class="input"
+          disabled
+          aria-label="Total balance"
+          role="status"
+          aria-live="polite"
+          data-testid="wallet-balance"
+          data-amount="0"
+        >
+          0.00 EUR
         </div>
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">Available</label>
-                <div id="wallet-available" class="input" style="background: var(--primary-light);" aria-label="Available balance" role="status" aria-live="polite" data-testid="wallet-available" data-amount="0">0.00 EUR</div>
-                <input type="hidden" id="wallet-available-minor" value="0">
-            </div>
-        </div>
+        <input type="hidden" id="wallet-balance-minor" value="0" />
+      </div>
     </div>
-    <div id="wallet-held-container" style="display: none;">
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">Held</label>
-                <div id="wallet-held" class="input" style="color: var(--negative);" aria-label="Held balance" role="status" aria-live="polite" data-testid="wallet-held" data-amount="0">0.00 EUR</div>
-                <input type="hidden" id="wallet-held-minor" value="0">
-            </div>
+    <div class="col">
+      <div class="form-group">
+        <label class="form-label">Available</label>
+        <div
+          id="wallet-available"
+          class="input"
+          style="background: var(--primary-light)"
+          aria-label="Available balance"
+          role="status"
+          aria-live="polite"
+          data-testid="wallet-available"
+          data-amount="0"
+        >
+          0.00 EUR
         </div>
+        <input type="hidden" id="wallet-available-minor" value="0" />
+      </div>
     </div>
+  </div>
+  <div id="wallet-held-container" style="display: none">
+    <div class="col">
+      <div class="form-group">
+        <label class="form-label">Held</label>
+        <div
+          id="wallet-held"
+          class="input"
+          style="color: var(--negative)"
+          aria-label="Held balance"
+          role="status"
+          aria-live="polite"
+          data-testid="wallet-held"
+          data-amount="0"
+        >
+          0.00 EUR
+        </div>
+        <input type="hidden" id="wallet-held-minor" value="0" />
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Pay Form -->
 <div class="card">
-    <h3>Send Money</h3>
-    <form id="pay-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        
-        <div class="form-group">
-            <label class="form-label" for="pay-handle">Recipient Handle</label>
-            <input type="text" id="pay-handle" name="to_handle" class="input" placeholder="bob" aria-describedby="pay-handle-help" data-testid="pay-handle">
-            <div id="pay-handle-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter recipient handle</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="pay-amount">Amount</label>
-            <input type="text" id="pay-amount" name="amount" class="input" placeholder="15.00" inputmode="decimal" aria-describedby="pay-amount-help" data-testid="pay-amount">
-            <div id="pay-amount-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter amount in EUR</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="pay-note">Note</label>
-            <input type="text" id="pay-note" name="note" class="input" placeholder="dinner" aria-describedby="pay-note-help" data-testid="pay-note" maxlength="200">
-            <div id="pay-note-help" class="form-text" style="display: none; color: var(--text-secondary);">Optional note for the payment</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Visibility</label>
-            <select id="pay-visibility" name="visibility" class="select" aria-label="Visibility selection" data-testid="pay-visibility">
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-            </select>
-        </div>
-        <button id="pay-submit" type="submit" class="btn" data-testid="pay-submit">Pay</button>
-        <div id="pay-error" class="form-text" style="display: none; color: var(--negative);" role="alert" aria-live="polite" data-testid="pay-error"></div>
-        <div id="pay-uncertain" class="form-text" style="display: none; color: var(--warning);" role="alert" aria-live="polite" data-testid="pay-uncertain"></div>
-    </form>
+  <h3>Send Money</h3>
+  <form id="pay-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+    <div class="form-group">
+      <label class="form-label" for="pay-handle">Recipient Handle</label>
+      <input
+        type="text"
+        id="pay-handle"
+        name="to_handle"
+        class="input"
+        placeholder="bob"
+        aria-describedby="pay-handle-help"
+        data-testid="pay-handle"
+      />
+      <div
+        id="pay-handle-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Enter recipient handle
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="pay-amount">Amount</label>
+      <input
+        type="text"
+        id="pay-amount"
+        name="amount"
+        class="input"
+        placeholder="15.00"
+        inputmode="decimal"
+        aria-describedby="pay-amount-help"
+        data-testid="pay-amount"
+      />
+      <div
+        id="pay-amount-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Enter amount in EUR
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="pay-note">Note</label>
+      <input
+        type="text"
+        id="pay-note"
+        name="note"
+        class="input"
+        placeholder="dinner"
+        aria-describedby="pay-note-help"
+        data-testid="pay-note"
+        maxlength="200"
+      />
+      <div id="pay-note-help" class="form-text" style="display: none; color: var(--text-secondary)">
+        Optional note for the payment
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Visibility</label>
+      <select
+        id="pay-visibility"
+        name="visibility"
+        class="select"
+        aria-label="Visibility selection"
+        data-testid="pay-visibility"
+      >
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+      </select>
+    </div>
+    <button id="pay-submit" type="submit" class="btn" data-testid="pay-submit">Pay</button>
+    <div
+      id="pay-error"
+      class="form-text"
+      style="display: none; color: var(--negative)"
+      role="alert"
+      aria-live="polite"
+      data-testid="pay-error"
+    ></div>
+    <div
+      id="pay-uncertain"
+      class="form-text"
+      style="display: none; color: var(--warning)"
+      role="alert"
+      aria-live="polite"
+      data-testid="pay-uncertain"
+    ></div>
+  </form>
 </div>
 
 <!-- Request Form -->
 <div class="card">
-    <h3>Request Money</h3>
-    <form id="request-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        
-        <div class="form-group">
-            <label class="form-label" for="request-handle">Payer Handle</label>
-            <input type="text" id="request-handle" name="payer_handle" class="input" placeholder="ada" aria-describedby="request-handle-help" data-testid="request-handle">
-            <div id="request-handle-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter payer handle</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="request-amount">Amount</label>
-            <input type="text" id="request-amount" name="amount" class="input" placeholder="20.00" inputmode="decimal" aria-describedby="request-amount-help" data-testid="request-amount">
-            <div id="request-amount-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter amount in EUR</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="request-note">Note</label>
-            <input type="text" id="request-note" name="note" class="input" placeholder="taxi" aria-describedby="request-note-help" data-testid="request-note" maxlength="200">
-            <div id="request-note-help" class="form-text" style="display: none; color: var(--text-secondary);">Optional note for the request</div>
-        </div>
-        <button id="request-submit" type="submit" class="btn" data-testid="request-submit">Request</button>
-        <div id="request-error" class="form-text" style="display: none; color: var(--negative);" role="alert" aria-live="polite" data-testid="request-error"></div>
-    </form>
+  <h3>Request Money</h3>
+  <form id="request-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+    <div class="form-group">
+      <label class="form-label" for="request-handle">Payer Handle</label>
+      <input
+        type="text"
+        id="request-handle"
+        name="payer_handle"
+        class="input"
+        placeholder="ada"
+        aria-describedby="request-handle-help"
+        data-testid="request-handle"
+      />
+      <div
+        id="request-handle-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Enter payer handle
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="request-amount">Amount</label>
+      <input
+        type="text"
+        id="request-amount"
+        name="amount"
+        class="input"
+        placeholder="20.00"
+        inputmode="decimal"
+        aria-describedby="request-amount-help"
+        data-testid="request-amount"
+      />
+      <div
+        id="request-amount-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Enter amount in EUR
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="request-note">Note</label>
+      <input
+        type="text"
+        id="request-note"
+        name="note"
+        class="input"
+        placeholder="taxi"
+        aria-describedby="request-note-help"
+        data-testid="request-note"
+        maxlength="200"
+      />
+      <div
+        id="request-note-help"
+        class="form-text"
+        style="display: none; color: var(--text-secondary)"
+      >
+        Optional note for the request
+      </div>
+    </div>
+    <button id="request-submit" type="submit" class="btn" data-testid="request-submit">
+      Request
+    </button>
+    <div
+      id="request-error"
+      class="form-text"
+      style="display: none; color: var(--negative)"
+      role="alert"
+      aria-live="polite"
+      data-testid="request-error"
+    ></div>
+  </form>
 </div>
 
 <!-- Activity Feed -->
 <div class="card">
-    <h3>Activity Feed</h3>
-    <div class="empty-activity" style="display: none;" role="status" aria-live="polite" data-testid="empty-activity">No activity</div>
-    <div id="activity-list" style="max-height: 400px; overflow-y: auto;" data-testid="activity-list">
-        <!-- Activity items inserted by JavaScript -->
-    </div>
+  <h3>Activity Feed</h3>
+  <div
+    class="empty-activity"
+    style="display: none"
+    role="status"
+    aria-live="polite"
+    data-testid="empty-activity"
+  >
+    No activity
+  </div>
+  <div id="activity-list" style="max-height: 400px; overflow-y: auto" data-testid="activity-list">
+    <!-- Activity items inserted by JavaScript -->
+  </div>
 </div>
 
 <!-- Wallet Refresh Button -->
-<div class="card" style="margin-top: var(--space-lg);">
-    <button id="wallet-refresh" class="btn btn-secondary" aria-label="Refresh balance" data-testid="wallet-refresh">Refresh Balance</button>
+<div class="card" style="margin-top: var(--space-lg)">
+  <button
+    id="wallet-refresh"
+    class="btn btn-secondary"
+    aria-label="Refresh balance"
+    data-testid="wallet-refresh"
+  >
+    Refresh Balance
+  </button>
 </div>
 {% endblock %}

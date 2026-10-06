@@ -51,7 +51,13 @@ app.include_router(requests_router, prefix=settings.API_V1_PREFIX + "/requests",
 app.include_router(split_router, prefix=settings.API_V1_PREFIX + "/splits", tags=["splits"])
 app.include_router(test_router, tags=["test"])
 app.include_router(websocket_router)
+# Frontend routes - mount at root but avoid conflicting with API routes
+# The frontend router handles HTML pages, not API endpoints
 app.include_router(frontend_router)
+
+# Add /me endpoint at root level as per spec
+from app.auth.routes import read_users_me
+app.get("/me", tags=["auth"])(read_users_me)
 
 
 @app.get("/health")

@@ -1,0 +1,26 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-undef": "warn",
+    "semi": ["error", "always"],
+    "quotes": ["error", "single"],
+    "indent": "off",
+    "max-len": ["warn", { "code": 120 }]
+  },
+  "ignorePatterns": [
+    "app/static/js/app.js",
+    "app/static/js/api.js"
+  ]
+}

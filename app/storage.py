@@ -68,6 +68,8 @@ class Authorization:
 
     @property
     def remaining_amount(self) -> int:
+        if self.status != "open":
+            return 0
         return max(0, self.amount - self.captured_amount)
 
     def is_open_and_valid(self) -> bool:
@@ -925,6 +927,43 @@ class Storage:
         for op_id in fixture.settlement_operator_ids:
             if op_id not in user_ids:
                 errors.append(f"settlement operator {op_id} not found")
+
+        # Check seeded authorizations
+        if fixture.authorizations:
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            user_balances = {u.id: u.balance for u in fixture.users}
+            open_holds = {uid: 0 for uid in user_ids}
+            
+            for fa in fixture.authorizations:
+                if fa.from_user_id not in user_ids or fa.to_user_id not in user_ids:
+                    errors.append(f"authorization {fa.id} references unknown user")
+                if fa.amount <= 0 or fa.amount > 1_000_000_000:
+                    errors.append(f"authorization {fa.id} has invalid amount")
+                if fa.visibility not in ("public", "private"):
+                    errors.append(f"authorization {fa.id} has invalid visibility")
+                if fa.status not in ("open", "captured", "voided", "expired"):
+                    errors.append(f"authorization {fa.id} has invalid status")
+                
+                # Check if authorization is open and not expired
+                is_open_and_valid = False
+                if fa.status == "open" and fa.expires_at:
+                    try:
+                        expires = datetime.fromisoformat(fa.expires_at.replace("Z", "+00:00"))
+                        if expires > now:
+                            is_open_and_valid = True
+                    except ValueError:
+                        pass
+                elif fa.status == "open" and not fa.expires_at:
+                    is_open_and_valid = True
+                
+                if is_open_and_valid:
+                    open_holds[fa.from_user_id] = open_holds.get(fa.from_user_id, 0) + fa.amount
+            
+            # Check that open holds don't exceed user balance
+            for uid, held_amount in open_holds.items():
+                if held_amount > user_balances.get(uid, 0):
+                    errors.append(f"user {uid} has open holds ({held_amount}) exceeding balance ({user_balances.get(uid, 0)})")
 
         return errors
 

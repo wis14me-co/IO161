@@ -1,56 +1,123 @@
-{% extends "base.html" %}
-
-{% block title %}Pocketful - Authorizations{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Pocketful - Authorizations{% endblock %} {% block content
+%}
 <h1>Pocketful - Authorizations</h1>
 
 <!-- CSRF token for dynamic forms -->
-<input type="hidden" id="csrf-token-value" value="{{ csrf_token }}">
+<input type="hidden" id="csrf-token-value" value="{{ csrf_token }}" />
 
 <div class="container">
-    <!-- Authorize Form -->
-    <div class="card" style="margin-bottom: var(--space-lg);">
-        <h3>Authorize Payment</h3>
-        <form id="authorize-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            
-            <div class="form-group">
-                <label class="form-label" for="authorize-handle">Recipient Handle</label>
-                <input type="text" id="authorize-handle" name="to_handle" class="input" placeholder="bob" aria-describedby="authorize-handle-help" data-testid="authorize-handle">
-                <div id="authorize-handle-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter recipient handle</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="authorize-amount">Amount</label>
-                <input type="text" id="authorize-amount" name="amount" class="input" placeholder="20.00" inputmode="decimal" aria-describedby="authorize-amount-help" data-testid="authorize-amount">
-                <div id="authorize-amount-help" class="form-text" style="display: none; color: var(--text-secondary);">Enter amount in EUR</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="authorize-note">Note</label>
-                <input type="text" id="authorize-note" name="note" class="input" placeholder="deposit" aria-describedby="authorize-note-help" data-testid="authorize-note" maxlength="200">
-                <div id="authorize-note-help" class="form-text" style="display: none; color: var(--text-secondary);">Optional note for the authorization</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Visibility</label>
-                <select id="authorize-visibility" name="visibility" class="select" aria-label="Visibility selection" data-testid="authorize-visibility">
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                </select>
-            </div>
-            <button id="authorize-submit" type="submit" class="btn" data-testid="authorize-submit">Authorize</button>
-            <div id="authorize-error" class="form-text" style="display: none; color: var(--negative);" role="alert" aria-live="polite" data-testid="authorize-error"></div>
-        </form>
-    </div>
+  <!-- Authorize Form -->
+  <div class="card" style="margin-bottom: var(--space-lg)">
+    <h3>Authorize Payment</h3>
+    <form id="authorize-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
-    <!-- Authorization List -->
-    <div class="card">
-        <h3>Authorization List</h3>
-        <div id="authorization-list" style="max-height: 500px; overflow-y: auto;" aria-label="Authorization list" data-testid="authorization-list">
-            <!-- Authorization items inserted by JavaScript -->
+      <div class="form-group">
+        <label class="form-label" for="authorize-handle">Recipient Handle</label>
+        <input
+          type="text"
+          id="authorize-handle"
+          name="to_handle"
+          class="input"
+          placeholder="bob"
+          aria-describedby="authorize-handle-help"
+          data-testid="authorize-handle"
+        />
+        <div
+          id="authorize-handle-help"
+          class="form-text"
+          style="display: none; color: var(--text-secondary)"
+        >
+          Enter recipient handle
         </div>
-        <div class="empty-authorizations" style="display: text-center; color: var(--text-secondary); padding: var(--space-lg);" role="status" aria-live="polite" data-testid="empty-authorizations">
-            No authorizations
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="authorize-amount">Amount</label>
+        <input
+          type="text"
+          id="authorize-amount"
+          name="amount"
+          class="input"
+          placeholder="20.00"
+          inputmode="decimal"
+          aria-describedby="authorize-amount-help"
+          data-testid="authorize-amount"
+        />
+        <div
+          id="authorize-amount-help"
+          class="form-text"
+          style="display: none; color: var(--text-secondary)"
+        >
+          Enter amount in EUR
         </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="authorize-note">Note</label>
+        <input
+          type="text"
+          id="authorize-note"
+          name="note"
+          class="input"
+          placeholder="deposit"
+          aria-describedby="authorize-note-help"
+          data-testid="authorize-note"
+          maxlength="200"
+        />
+        <div
+          id="authorize-note-help"
+          class="form-text"
+          style="display: none; color: var(--text-secondary)"
+        >
+          Optional note for the authorization
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Visibility</label>
+        <select
+          id="authorize-visibility"
+          name="visibility"
+          class="select"
+          aria-label="Visibility selection"
+          data-testid="authorize-visibility"
+        >
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <button id="authorize-submit" type="submit" class="btn" data-testid="authorize-submit">
+        Authorize
+      </button>
+      <div
+        id="authorize-error"
+        class="form-text"
+        style="display: none; color: var(--negative)"
+        role="alert"
+        aria-live="polite"
+        data-testid="authorize-error"
+      ></div>
+    </form>
+  </div>
+
+  <!-- Authorization List -->
+  <div class="card">
+    <h3>Authorization List</h3>
+    <div
+      id="authorization-list"
+      style="max-height: 500px; overflow-y: auto"
+      aria-label="Authorization list"
+      data-testid="authorization-list"
+    >
+      <!-- Authorization items inserted by JavaScript -->
     </div>
+    <div
+      class="empty-authorizations"
+      style="display: text-center; color: var(--text-secondary); padding: var(--space-lg)"
+      role="status"
+      aria-live="polite"
+      data-testid="empty-authorizations"
+    >
+      No authorizations
+    </div>
+  </div>
 </div>
 {% endblock %}

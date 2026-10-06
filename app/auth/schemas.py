@@ -24,8 +24,11 @@ class UserUpdate(UserBase):
     is_active: Optional[bool] = None
 
 
-class UserResponse(UserBase):
-    id: str
+class UserResponse(BaseModel):
+    user_id: str
+    email: EmailStr
+    display_name: str
+    handle: str
     is_active: bool = True
     is_superuser: bool = False
     created_at: Optional[str] = None
