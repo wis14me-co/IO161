@@ -314,64 +314,6 @@ async def signup_page(request: Request):
         "request": request,
         "csrf_token": generate_csrf_token()
     })
-
-
-@app.get("/requests", response_class=HTMLResponse)
-async def requests_page(
-    request: Request,
-    direction: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    limit: int = Query(50),
-    offset: int = Query(0),
-    user_id: str = Depends(get_current_user)
-):
-    """Requests list page - HTML or JSON based on Accept header."""
-    format_type = get_accept_format(request.headers.get("accept"))
-    
-    validate_direction(direction)
-    validate_status(status)
-    limit, offset = validate_limit_offset(limit, offset)
-    
-    requests = storage.get_requests_for_user(user_id, direction, status, limit + 1, offset)
-    
-    # Check if there are more items
-    has_more = len(requests) > limit
-    if has_more:
-        requests = requests[:limit]
-    
-    result = []
-    for r in requests:
-        requester = storage.get_user_by_id(r.requester_id)
-        payer = storage.get_user_by_id(r.payer_id)
-        result.append(RequestResponse(
-            request_id=r.id,
-            requester_id=r.requester_id,
-            requester_handle=requester.handle if requester else "",
-            payer_id=r.payer_id,
-            payer_handle=payer.handle if payer else "",
-            amount=r.amount,
-            currency=storage.currency,
-            note=r.note,
-            status=r.status,
-            payment_id=r.payment_id,
-            created_at=r.created_at
-        ))
-    
-    if format_type == "html":
-        session = storage.get_session_cookie(request)
-        return templates.TemplateResponse("requests.html", {
-            "request": request,
-            "requests": result,
-            "user_id": user_id,
-            "currency": storage.currency,
-            "minor_units": storage.minor_units,
-            "csrf_token": session.csrf_token if session else generate_csrf_token()
-        })
-    
-    return RequestListResponse(requests=result, has_more=has_more)
-
-
-@app.get("/requests/new", response_class=HTMLResponse)
 async def new_request_page(request: Request, user_id: str = Depends(get_current_user)):
     """New request page."""
     session = storage.get_session_cookie(request)
@@ -380,66 +322,6 @@ async def new_request_page(request: Request, user_id: str = Depends(get_current_
         "currency": storage.currency,
         "csrf_token": session.csrf_token if session else generate_csrf_token()
     })
-
-
-@app.get("/authorizations")
-async def authorizations_page(
-    request: Request,
-    direction: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    limit: int = Query(50),
-    offset: int = Query(0),
-    user_id: str = Depends(get_current_user)
-):
-    """Authorizations list page - HTML or JSON based on Accept header."""
-    format_type = get_accept_format(request.headers.get("accept"))
-    
-    validate_direction(direction)
-    validate_authorization_status(status)
-    limit, offset = validate_limit_offset(limit, offset)
-    
-    authorizations = storage.get_authorizations_for_user(user_id, direction, status, limit + 1, offset)
-    
-    # Check if there are more items
-    has_more = len(authorizations) > limit
-    if has_more:
-        authorizations = authorizations[:limit]
-    
-    result = []
-    for a in authorizations:
-        from_user = storage.get_user_by_id(a.from_user_id)
-        to_user = storage.get_user_by_id(a.to_user_id)
-        effective_status = storage._get_authorization_status(a)
-        result.append(AuthorizationResponse(
-            authorization_id=a.id,
-            from_user_id=a.from_user_id,
-            from_handle=from_user.handle if from_user else "",
-            to_user_id=a.to_user_id,
-            to_handle=to_user.handle if to_user else "",
-            amount=a.amount,
-            captured_amount=a.captured_amount,
-            remaining_amount=a.remaining_amount,
-            note=a.note,
-            visibility=a.visibility,
-            status=effective_status,
-            expires_at=a.expires_at,
-            payment_id=a.payment_id,
-            payment_ids=a.payment_ids,
-            created_at=a.created_at
-        ))
-    
-    if format_type == "html":
-        session = storage.get_session_cookie(request)
-        return templates.TemplateResponse("authorizations.html", {
-            "request": request,
-            "authorizations": result,
-            "user_id": user_id,
-            "currency": storage.currency,
-            "minor_units": storage.minor_units,
-            "csrf_token": session.csrf_token if session else generate_csrf_token()
-        })
-    
-    return AuthorizationListResponse(authorizations=result, has_more=has_more)
 
 
 @app.get("/authorizations/new", response_class=HTMLResponse)
@@ -481,62 +363,6 @@ async def split_page(request: Request, user_id: str = Depends(get_current_user))
         currency=storage.currency,
         minor_units=storage.minor_units
     )
-
-
-@app.get("/activity", response_class=HTMLResponse)
-async def activity_page(
-    request: Request,
-    limit: int = Query(50),
-    offset: int = Query(0),
-    user_id: str = Depends(get_current_user)
-):
-    """Activity feed page - HTML or JSON based on Accept header."""
-    format_type = get_accept_format(request.headers.get("accept"))
-    
-    limit, offset = validate_limit_offset(limit, offset)
-    
-    all_payments = storage.get_all_payments()
-    user = storage.get_user_by_id(user_id)
-    
-    visible = []
-    for p in all_payments:
-        if p.visibility == "public" or p.from_user_id == user_id or p.to_user_id == user_id:
-            visible.append(p)
-    
-    visible.sort(key=lambda p: p.created_at, reverse=True)
-    # Check if there are more items beyond the current page
-    has_more = len(visible) > offset + limit
-    page = visible[offset:offset + limit]
-    
-    result = []
-    for p in page:
-        from_user = storage.get_user_by_id(p.from_user_id)
-        to_user = storage.get_user_by_id(p.to_user_id)
-        result.append(PaymentResponse(
-            payment_id=p.id,
-            from_user_id=p.from_user_id,
-            from_handle=from_user.handle if from_user else "",
-            to_user_id=p.to_user_id,
-            to_handle=to_user.handle if to_user else "",
-            amount=p.amount,
-            currency=storage.currency,
-            note=p.note,
-            visibility=p.visibility,
-            request_id=p.request_id,
-            created_at=p.created_at
-        ))
-    
-    if format_type == "html":
-        session = storage.get_session_cookie(request)
-        return templates.TemplateResponse("activity.html", {
-            "request": request,
-            "payments": result,
-            "currency": storage.currency,
-            "minor_units": storage.minor_units,
-            "csrf_token": session.csrf_token if session else generate_csrf_token()
-        })
-    
-    return ActivityResponse(payments=result, has_more=has_more)
 
 
 @app.get("/health", response_model=HealthResponse)
